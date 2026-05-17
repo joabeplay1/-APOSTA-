@@ -4,35 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Domino Play Premium</title>
-    <link rel="stylesheet" href="./src/css/theme.css">
     <style>
-        #app-container { width: 100vw; height: 100vh; position: relative; overflow: hidden; background: #060b14; }
+        :root {
+            --bg-main: #060b14;
+            --table-gradient: radial-gradient(circle, #0a251c 0%, #040e0a 100%);
+            --neon-blue: #00f0ff;
+            --neon-green: #39ff14;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #8a99ad;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #app-container { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
         
-        /* Força todas as telas a começarem escondidas, exceto a que tiver a classe .active */
         .screen { 
             display: none !important; 
             position: absolute; 
-            width: 100%; 
-            height: 100%; 
-            top: 0; 
-            left: 0; 
+            width: 100%; height: 100%; 
+            top: 0; left: 0; 
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
             z-index: 5;
         }
         
-        /* Tela ativa se torna um flexbox visível */
-        .screen.active { 
-            display: flex !important; 
-        }
+        .screen.active { display: flex !important; }
         
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
+            border: none; color: white;
+            padding: 14px 28px; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 1px;
+            border-radius: 8px; cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn-premium:active { transform: scale(0.95); box-shadow: 0 0 5px rgba(0, 240, 255, 0.8); }
+        .btn-premium.green { background: linear-gradient(135deg, #39ff14 0%, #00aa22 100%); box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
+
         #game-board {
             width: 85%; height: 60%;
             background: var(--table-gradient);
             border: 12px solid #1a110b;
-            border-radius: 24px;
-            position: relative;
+            border-radius: 24px; position: relative;
             box-shadow: inset 0 0 50px rgba(0,0,0,0.9), 0 20px 40px rgba(0,0,0,0.6);
         }
         
@@ -58,8 +92,7 @@
         .turn-indicator {
             position: absolute; top: 15px; right: 15px;
             padding: 8px 16px; border-radius: 20px;
-            font-weight: bold; text-transform: uppercase;
-            z-index: 10;
+            font-weight: bold; text-transform: uppercase; z-index: 10;
         }
         .my-turn { background: rgba(57, 255, 20, 0.2); border: 1px solid var(--neon-green); color: var(--neon-green); }
         .other-turn { background: rgba(255, 0, 0, 0.2); border: 1px solid #ff0055; color: #ff0055; }
@@ -98,15 +131,29 @@
     </div>
 
     <script type="module">
-        import { auth, signInAnonymously } from "./src/js/config/firebase.js";
-        import { RoomManager } from "./src/js/network/room.js";
-        import { DominoVoice } from "./src/js/core/voice.js";
-        import { DominoEngine } from "./src/js/core/engine.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Suas credenciais oficiais enviadas na primeira mensagem
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZ4rOliexofYP8vyRLzUeX3mf5uXG6WRM",
+            authDomain: "aposta-96213.firebaseapp.com",
+            projectId: "aposta-96213",
+            storageBucket: "aposta-96213.firebasestorage.app",
+            messagingSenderId: "989060185373",
+            appId: "1:989060185373:web:69bb80b2f961fe8e9d35f4"
+        };
+
+        // Inicialização dos serviços
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
 
         let localPlayer = { id: null, name: "" };
         let currentRoomCode = null;
 
-        // Gerenciador de Partículas de Fundo
+        // Efeito de Partículas
         const canvas = document.getElementById('bg-particles');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -126,15 +173,12 @@
         }
         drawParticles();
 
-        // Função de alternar telas corrigida para resetar estados do flexbox
         function changeScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => {
-                s.classList.remove('active');
-            });
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
         }
 
-        // Evento de Login
+        // Execução do Login conectando diretamente ao Firebase
         document.getElementById('btn-login').addEventListener('click', async () => {
             const nameInput = document.getElementById('username').value.trim();
             if(!nameInput) return alert("Por favor, digite seu nome de jogador.");
@@ -145,66 +189,96 @@
                 localPlayer.id = cred.user.uid;
                 changeScreen('screen-lobby');
             } catch (error) {
-                console.error("Erro na autenticação:", error);
-                alert("Erro ao conectar com o servidor. Verifique o console.");
+                console.error(error);
+                alert("Erro ao conectar com o servidor Firebase. Certifique-se de que o login anônimo está ativado no painel Authentication.");
             }
         });
 
-        // Criar Sala
+        // Lógica de Criação de Sala Unificada
         document.getElementById('btn-create-room').addEventListener('click', async () => {
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const roomRef = ref(db, `rooms/${code}`);
+            
+            const state = {
+                status: "waiting",
+                turn: localPlayer.id,
+                board: { left_edge: null, right_edge: null },
+                players: {
+                    [localPlayer.id]: { name: localPlayer.name, hand_count: 0, is_online: true }
+                }
+            };
+
             try {
-                currentRoomCode = await RoomManager.createRoom(localPlayer.id, localPlayer.name);
-                alert(`Sala criada! Compartilhe o código com seu amigo: ${currentRoomCode}`);
-                startGameSession(currentRoomCode);
+                await set(roomRef, state);
+                currentRoomCode = code;
+                alert(`Sala criada! Código: ${currentRoomCode}`);
+                changeScreen('screen-game');
+                listenToRoom(currentRoomCode);
             } catch (error) {
-                alert("Erro ao criar sala. Verifique o Realtime Database.");
+                alert("Erro ao gravar dados. Ative as regras públicas do seu Realtime Database.");
             }
         });
 
-        // Entrar na Sala
+        // Entrar em Sala Existente
         document.getElementById('btn-join-room').addEventListener('click', async () => {
             const code = document.getElementById('room-code-input').value.toUpperCase().trim();
-            if(!code) return alert("Insira o código gerado pelo seu amigo.");
+            if(!code) return alert("Insira um código válido.");
             
+            const playerRef = ref(db, `rooms/${code}/players/${localPlayer.id}`);
             try {
-                await RoomManager.joinRoom(code, localPlayer.id, localPlayer.name);
+                await set(playerRef, { name: localPlayer.name, hand_count: 0, is_online: true });
                 currentRoomCode = code;
-                startGameSession(currentRoomCode);
+                changeScreen('screen-game');
+                listenToRoom(currentRoomCode);
             } catch (error) {
-                alert("Sala não encontrada ou código inválido.");
+                alert("Erro ao entrar na sala.");
             }
         });
 
-        function startGameSession(code) {
-            changeScreen('screen-game');
-            RoomManager.listenToRoom(code, (roomData) => {
-                renderGame(roomData);
+        function listenToRoom(code) {
+            onValue(ref(db, `rooms/${code}`), (snapshot) => {
+                if (snapshot.exists()) renderGame(snapshot.val());
             });
+        }
+
+        // Sistema de Voz integrado direto por API Nativa
+        function narrarPedra(left, right) {
+            if (!('speechSynthesis' in window)) return;
+            let phrase = "";
+            if (left === right) {
+                const names = ["Carroça de Branco", "Carroça de Ás", "Carroça de Duque", "Carroça de Terno", "Carroça de Quadra", "Carroça de Quina", "Carroça de Sena"];
+                phrase = names[left];
+            } else {
+                const mapNames = { 0: "Branco", 1: "Ás", 2: "Duque", 3: "Terno", 4: "Quadra", 5: "Quina", 6: "Sena" };
+                phrase = `${mapNames[Math.max(left, right)]} e ${mapNames[Math.min(left, right)]}`;
+            }
+            const u = new SpeechSynthesisUtterance(phrase);
+            u.lang = "pt-BR"; u.rate = 1.1;
+            window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
         }
 
         function renderGame(room) {
             const badge = document.getElementById('turn-badge');
-            
             if (room.turn === localPlayer.id) {
                 badge.textContent = "Sua Vez";
                 badge.className = "turn-indicator my-turn";
             } else {
-                const opponentName = Object.values(room.players).find(p => p.name !== localPlayer.name)?.name || "Oponente";
-                badge.textContent = `Vez de ${opponentName}`;
+                const opp = Object.values(room.players).find(p => p.name !== localPlayer.name)?.name || "Oponente";
+                badge.textContent = `Vez de ${opp}`;
                 badge.className = "turn-indicator other-turn";
             }
 
             const handContainer = document.getElementById('player-hand');
             handContainer.innerHTML = "";
-            
             const mockHand = [{l:6, r:6}, {l:6, r:2}, {l:3, r:4}];
+            
             mockHand.forEach(p => {
                 const el = document.createElement('div');
                 el.className = "domino-piece";
                 el.innerHTML = `<div>${p.l}</div><div>${p.r}</div>`;
                 el.onclick = () => {
                     if(room.turn !== localPlayer.id) return alert("Aguarde o seu turno!");
-                    DominoVoice.speak(p.l, p.r);
+                    narrarPedra(p.l, p.r);
                 };
                 handContainer.appendChild(el);
             });
