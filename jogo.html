@@ -3,53 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mesa de Campeonato - Dominó</title>
+    <title>Mesa de Jogo - Dominó Brasileiro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="mesa">
-        <!-- Cabeçalho de Status -->
         <div class="header-jogo">
-            <h2 id="roomInfo">SALA: ----</h2>
-            <div id="statusVez" class="status-vez">Aguardando jogadores...</div>
-            <div id="painelAposta" class="painel-aposta">Aposta: 0 🪙</div>
+            <div id="p1Display" class="player-info">Aguardando Jogador 1...</div>
+            <div id="statusVez" class="status-vez">Aguardando início...</div>
+            <div id="p2Display" class="player-info">Aguardando Jogador 2...</div>
         </div>
 
-        <!-- Placar e Jogadores -->
         <div class="placar-container">
-            <div class="jogador-status" id="p1-status">P1: -- (0 pts)</div>
-            <div class="id-carro" id="carroCount">Carro: 14 peças</div>
-            <div class="jogador-status" id="p2-status">P2: -- (0 pts)</div>
+            <span id="displayCodigo">SALA: ----</span>
+            <span id="displayAposta">APOSTA: $0</span>
+            <span id="displayStatus">STATUS: Conectando...</span>
         </div>
 
-        <!-- Tabuleiro Principal (Onde as peças são jogadas) -->
         <div class="tabuleiro-wrapper">
-            <div id="gameBoard" class="game-board"></div>
+            <div id="gameBoard" class="game-board">
+                </div>
         </div>
 
-        <!-- Controles de Ação (Comprar/Passar) -->
         <div class="controles-jogo">
-            <button id="btnComprar" class="btn-acao" disabled>Comprar Peça</button>
-            <button id="btnPassar" class="btn-acao" disabled>Passar Vez</button>
+            <button id="btnComprar" class="btn-acao" disabled>COMPRAR PEÇA</button>
+            <button id="btnPassar" class="btn-acao" style="display: none;">PASSAR VEZ</button>
+            <button id="btnIniciar" class="btn-acao" style="background: #238636; display: none;">INICIAR PARTIDA</button>
         </div>
 
-        <!-- Mão do Jogador Local -->
         <div class="player-hand-container">
-            <h3>Sua Mão</h3>
-            <div id="playerHand" class="player-hand"></div>
+            <div id="playerHand" class="player-hand">
+                </div>
         </div>
 
-        <!-- Chat Lateral/Inferior Integrado -->
         <div class="chat-container">
             <div id="chatMessages" class="chat-messages"></div>
             <div class="chat-input-box">
-                <input type="text" id="chatInput" placeholder="Digite uma mensagem...">
+                <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
                 <button id="btnEnviarChat">Enviar</button>
             </div>
         </div>
     </div>
 
-    <!-- Efeitos Sonoros Opcionais (Instâncias via Web Audio API no código para não quebrar se faltar o arquivo) -->
-    <script type="module" src="game.js"></script>
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="jogo.js"></script>
 </body>
 </html>
