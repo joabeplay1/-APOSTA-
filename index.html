@@ -62,55 +62,78 @@
         .btn-premium:active { transform: scale(0.95); box-shadow: 0 0 5px rgba(0, 240, 255, 0.8); }
         .btn-premium.green { background: linear-gradient(135deg, #39ff14 0%, #00aa22 100%); box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
 
-        /* MESA PREMIUM MANTIDA COM COMPATIBILIDADE MOBILE */
+        /* MESA PREMIUM CENTRALIZADA */
         #game-board {
-            width: 85%; height: 60%;
+            width: 90%; height: 55%;
             background: var(--table-gradient);
             border: 12px solid #1a110b;
             border-radius: 24px; position: relative;
             box-shadow: inset 0 0 50px rgba(0,0,0,0.9), 0 20px 40px rgba(0,0,0,0.6);
             display: flex; justify-content: center; align-items: center;
-            overflow: visible;
+            overflow: x: auto; overflow-y: hidden;
+            padding: 20px; box-sizing: border-box;
         }
 
-        /* CONTAINER FLUIDO PARA AS PEÇAS DA MESA NÃO SE SOBREPOREM */
         #board-center {
             display: flex; align-items: center; justify-content: center;
-            gap: 4px; position: relative; max-width: 95%; transition: all 0.3s ease;
+            gap: 6px; position: relative; min-width: min-content;
+            transition: all 0.3s ease;
         }
         
+        /* CONTAINER DA MÃO DO JOGADOR - CENTRALIZADO E SEPARADO */
         #player-hand {
-            position: absolute; bottom: 20px; left: 50%;
+            position: absolute; bottom: 25px; left: 50%;
             transform: translateX(-50%);
-            display: flex; gap: 14px; padding: 12px 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 14px; border: 1px solid var(--glass-border);
+            display: flex; gap: 10px; padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 16px; border: 1px solid var(--glass-border);
+            max-width: 95vw; overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 10;
         }
 
-        /* PROPORÇÕES DE TAMANHO AUMENTADAS PARA VISUAL PREMIUM AAA */
+        /* DESIGN PREMIUM ORIGINAL DE PEDRA REAL DE DOMINÓ (MARFIM) */
         .domino-piece {
-            width: 54px; height: 104px;
-            background: #fdfdfd; color: #111;
+            width: 52px; height: 100px;
+            background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
             border-radius: 8px; display: flex; flex-direction: column;
-            justify-content: space-around; align-items: center;
-            font-weight: 800; font-size: 24px; cursor: pointer;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.5);
-            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.15s ease;
-            position: relative; border: 1px solid #ddd;
+            justify-content: space-between; align-items: center;
+            cursor: pointer; box-shadow: 0 6px 12px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.8);
+            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s ease;
+            position: relative; box-sizing: border-box; padding: 6px;
+            flex-shrink: 0; border: 1px solid #d4d4d4;
         }
-        .domino-piece::after {
-            content: ''; position: absolute; width: 85%; height: 2px;
-            background: rgba(0, 0, 0, 0.15); top: 50%; transform: translateY(-50%);
-        }
-        .domino-piece:hover { transform: translateY(-14px); box-shadow: 0 0 20px var(--neon-blue); }
         
-        /* PEÇAS DEITADAS (HORIZONTAL) NA MESA */
+        /* Linha divisória de metal central */
+        .domino-piece::after {
+            content: ''; position: absolute; width: 88%; height: 2px;
+            background: linear-gradient(90deg, #ccc, #666, #ccc); top: 50%; transform: translateY(-50%);
+            left: 6%; z-index: 2;
+        }
+        
+        .domino-piece:hover { transform: translateY(-15px) scale(1.04); box-shadow: 0 12px 24px rgba(0,0,0,0.6), 0 0 15px var(--neon-blue); }
+        
+        /* ADAPTAÇÃO PARA PEÇAS HORIZONTAIS NA MESA */
         .domino-piece.horizontal {
-            width: 104px; height: 54px; flex-direction: row;
+            width: 100px; height: 52px; flex-direction: row;
         }
         .domino-piece.horizontal::after {
-            width: 2px; height: 85%; top: 0; left: 50%; transform: translateX(-50%);
+            width: 2px; height: 88%; top: 6%; left: 50%; transform: translateX(-50%);
         }
+
+        /* CORPO DAS METADES DA PEDRA (GRID DE PONTOS) */
+        .domino-half {
+            width: 40px; height: 40px; display: grid;
+            grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+            gap: 2px; padding: 2px; box-sizing: border-box; position: relative;
+        }
+
+        /* PONTOS PRETOS (BOLINHAS) PREMIUM */
+        .dot {
+            background: #111111; border-radius: 50%; width: 8px; height: 8px;
+            margin: auto; box-shadow: inset 0 1px 1px rgba(0,0,0,0.6);
+            opacity: 0; /* Controlado dinamicamente via JS */
+        }
+        .dot.active { opacity: 1; }
 
         .turn-indicator {
             position: absolute; top: 15px; right: 15px;
@@ -119,6 +142,15 @@
         }
         .my-turn { background: rgba(57, 255, 20, 0.2); border: 1px solid var(--neon-green); color: var(--neon-green); box-shadow: 0 0 10px rgba(57, 255, 20, 0.3); }
         .other-turn { background: rgba(255, 0, 0, 0.2); border: 1px solid #ff0055; color: #ff0055; }
+
+        /* Ajustes de responsividade para telas menores (Celulares) */
+        @media (max-width: 768px) {
+            .domino-piece { width: 42px; height: 80px; padding: 4px; }
+            .domino-piece.horizontal { width: 80px; height: 42px; }
+            .domino-half { width: 32px; height: 32px; }
+            .dot { width: 6px; height: 6px; }
+            #game-board { height: 45%; width: 95%; }
+        }
     </style>
 </head>
 <body>
@@ -161,7 +193,7 @@
         let localPlayer = { id: null, name: "" };
         let currentRoomCode = null;
 
-        // Fundo com Partículas de Cassino Estilizado
+        // Fundo com Partículas Animadas
         const canvas = document.getElementById('bg-particles');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -186,7 +218,7 @@
             document.getElementById(screenId).classList.add('active');
         }
 
-        // Login Seguro Instantâneo
+        // Login Sincronizado
         document.getElementById('btn-login').addEventListener('click', async () => {
             const nameInput = document.getElementById('username').value.trim();
             if(!nameInput) return alert("Por favor, digite seu nome de jogador.");
@@ -200,7 +232,37 @@
             }
         });
 
-        // GERAÇÃO COMPLETA DAS 28 PEÇAS OFICIAIS DO DOMINÓ BRASILEIRO
+        // MAPEAMENTO E RENDERIZADOR MATEMÁTICO DE PONTOS (BOLINHAS REALISTAS)
+        // Mapeia os índices corretos em um Grid 3x3 para posicionar os pontos do dominó tradicional
+        const DOT_MAPS = {
+            0: [],
+            1: [4],
+            2: [0, 8],
+            3: [0, 4, 8],
+            4: [0, 2, 6, 8],
+            5: [0, 2, 4, 6, 8],
+            6: [0, 2, 3, 5, 6, 8]
+        };
+
+        function gerarHtmlMetadePeca(valor) {
+            let html = `<div class="domino-half">`;
+            const ativos = DOT_MAPS[valor] || [];
+            for (let i = 0; i < 9; i++) {
+                const isActive = ativos.includes(i) ? 'active' : '';
+                html += `<div class="dot ${isActive}"></div>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        function criarElementoDomino(l, r, extraClasse = '') {
+            const el = document.createElement('div');
+            el.className = `domino-piece ${extraClasse}`;
+            el.innerHTML = gerarHtmlMetadePeca(l) + gerarHtmlMetadePeca(r);
+            return el;
+        }
+
+        // Geração do Baralho de 28 Peças
         function criarBaralhoCompleto() {
             let pecas = [];
             let id = 0;
@@ -209,7 +271,6 @@
                     pecas.push({ id: `p_${id++}`, l: i, r: j });
                 }
             }
-            // Embaralhar (Algoritmo Fisher-Yates)
             for (let i = pecas.length - 1; i > 0; i--) {
                 const k = Math.floor(Math.random() * (i + 1));
                 [pecas[i], pecas[k]] = [pecas[k], pecas[i]];
@@ -217,55 +278,49 @@
             return pecas;
         }
 
-        // Criar Sala com Distribuição Real de 7 Peças
+        // Criar Sala Privada
         document.getElementById('btn-create-room').addEventListener('click', async () => {
             const code = Math.random().toString(36).substring(2, 8).toUpperCase();
             const pool = criarBaralhoCompleto();
-            
-            // Separa as 7 primeiras peças para o criador
             const maoCriador = pool.splice(0, 7);
             
             const state = {
                 status: "waiting",
                 turn: localPlayer.id,
                 board: { left_edge: null, right_edge: null, played_pieces: [] },
-                deck: pool, // Restante das peças guardadas de forma segura
-                players: {
-                    [localPlayer.id]: { name: localPlayer.name, is_online: true }
-                },
-                hands: {
-                    [localPlayer.id]: maoCriador
-                }
+                deck: pool,
+                players: { [localPlayer.id]: { name: localPlayer.name, is_online: true } },
+                hands: { [localPlayer.id]: maoCriador }
             };
 
             try {
                 await set(ref(db, `rooms/${code}`), state);
                 currentRoomCode = code;
-                alert(`Sala Criada! Código: ${currentRoomCode}`);
+                alert(`Sala Criada com Sucesso! Código: ${currentRoomCode}`);
                 changeScreen('screen-game');
                 listenToRoom(currentRoomCode);
             } catch (e) { alert("Erro ao criar sala."); }
         });
 
-        // Entrar na Sala com Entrega Automática das Outras 7 Peças
+        // Entrar com Código
         document.getElementById('btn-join-room').addEventListener('click', async () => {
             const code = document.getElementById('room-code-input').value.toUpperCase().trim();
-            if(!code) return alert("Insira o código.");
+            if(!code) return alert("Insira o código da sala.");
 
             const roomRef = ref(db, `rooms/${code}`);
             onValue(roomRef, async (snapshot) => {
-                if (!snapshot.exists()) return;
+                if (!snapshot.exists()) return alert("Sala não encontrada.");
                 const room = snapshot.val();
                 
                 if (room.status === "waiting" && !room.players[localPlayer.id]) {
                     let deckAtual = [...room.deck];
-                    const maoOponente = deckAtual.splice(0, 7); // Entrega as próximas 7 peças do topo
+                    const maoOponente = deckAtual.splice(0, 7);
 
                     let updates = {};
                     updates[`/players/${localPlayer.id}`] = { name: localPlayer.name, is_online: true };
                     updates[`/hands/${localPlayer.id}`] = maoOponente;
                     updates[`/deck`] = deckAtual;
-                    updates[`/status`] = "playing"; // Começa o jogo multiplayer
+                    updates[`/status`] = "playing";
 
                     await update(roomRef, updates);
                     currentRoomCode = code;
@@ -275,13 +330,14 @@
             }, { onlyOnce: true });
         });
 
+        // Ouvinte de Mudanças do Firebase em Tempo Real
         function listenToRoom(code) {
             onValue(ref(db, `rooms/${code}`), (snapshot) => {
                 if (snapshot.exists()) renderGame(snapshot.val());
             });
         }
 
-        // SISTEMA DE VOZ FEMININA INTELIGENTE - SEM ATRASO (NATIVA)
+        // Sintetizador de Voz Feminina Nativa Sem Atrasos
         function narrarPecaOficial(left, right) {
             if (!('speechSynthesis' in window)) return;
             let frase = "";
@@ -294,24 +350,21 @@
             }
 
             const fala = new SpeechSynthesisUtterance(frase);
-            fala.lang = "pt-BR";
-            fala.rate = 1.15; // Velocidade fluida natural
+            fala.lang = "pt-BR"; fala.rate = 1.2;
             
-            // Força o navegador a carregar uma voz feminina nativa se disponível
             const vozes = window.speechSynthesis.getVoices();
-            const vozFeminina = vozes.find(v => v.lang.includes("pt-BR") && (v.name.toLowerCase().includes("maria") || v.name.toLowerCase().includes("google") || v.name.toLowerCase().includes("zira")));
+            const vozFeminina = vozes.find(v => v.lang.includes("pt-BR") && (v.name.toLowerCase().includes("maria") || v.name.toLowerCase().includes("google") || v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("luciana")));
             if(vozFeminina) fala.voice = vozFeminina;
 
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(fala);
         }
 
-        // RENDERIZADOR AVANÇADO: VALIDAÇÃO DE REGRAS, ROTAÇÃO E ENCAIXE AUTOMÁTICO
+        // MOTOR DE RENDERIZAÇÃO E LOGICA DE ENCAIXE DO DOMINÓ REAL
         function renderGame(room) {
             const badge = document.getElementById('turn-badge');
             const isMyTurn = room.turn === localPlayer.id;
 
-            // Interface Dinâmica de Turnos
             if (isMyTurn) {
                 badge.textContent = "Sua Vez";
                 badge.className = "turn-indicator my-turn";
@@ -321,36 +374,32 @@
                 badge.className = "turn-indicator other-turn";
             }
 
-            // 1. RENDERIZAR PEÇAS JOGADAS NA MESA (GRID DINÂMICO CONFORME O LADO)
+            // CORREÇÃO DO TABULEIRO: Desenha as peças perfeitamente com bolinhas pretas
             const boardCenter = document.getElementById('board-center');
             boardCenter.innerHTML = "";
             
             const played = room.board.played_pieces || [];
             played.forEach((piece) => {
-                const el = document.createElement('div');
-                // Se os lados forem diferentes, deita a peça horizontalmente (Melhor Encaixe)
                 const isCarroça = piece.l === piece.r;
-                el.className = `domino-piece ${isCarroça ? '' : 'horizontal'}`;
-                
-                // Exibe os números alinhados conforme a rotação
-                el.innerHTML = `<div>${piece.l}</div><div>${piece.r}</div>`;
-                boardCenter.appendChild(el);
+                // Aplica classe horizontal automática para deitar a pedra se for ponta comum
+                const pecaMesa = criarElementoDomino(piece.l, piece.r, isCarroça ? '' : 'horizontal');
+                boardCenter.appendChild(pecasMesa);
             });
 
-            // Narrar a última jogada feita pelo oponente em tempo real
+            // Dispara a áudio-narração síncrona se uma nova jogada for registrada
             if(played.length > 0 && room.last_played_id !== window.lastPlayedTracked) {
                 const ultima = played[played.length - 1];
                 narrarPecaOficial(ultima.l, ultima.r);
                 window.lastPlayedTracked = room.last_played_id;
             }
 
-            // 2. RENDERIZAR A MÃO REAL DO JOGADOR COM TAMANHO MAXIMIZADO AAA
+            // RENDERIZAR PEÇAS NA MÃO DO JOGADOR LOCAL COM DESIGN PREMIUM COMPLETO
             const handContainer = document.getElementById('player-hand');
             handContainer.innerHTML = "";
             
             const minhaMao = room.hands?.[localPlayer.id] || [];
-            
-            // REGRAS BRASILEIRAS: CHECAGEM DE BLOQUEIO (TRAVA) OU PASSAGEM DE VEZ AUTOMÁTICA
+
+            // Validação inteligente de fechamento de jogadas
             let temJogadaValida = false;
             minhaMao.forEach(p => {
                 if (room.board.left_edge === null || p.l === room.board.left_edge || p.r === room.board.left_edge || p.l === room.board.right_edge || p.r === room.board.right_edge) {
@@ -358,22 +407,20 @@
                 }
             });
 
-            // Passa a vez automaticamente se não tiver peça compatível para jogar
+            // Passa a vez automaticamente em caso de trava na mão do jogador
             if (room.status === "playing" && isMyTurn && minhaMao.length > 0 && !temJogadaValida) {
                 setTimeout(async () => {
                     const proxTurno = Object.keys(room.players).find(id => id !== localPlayer.id);
                     await update(ref(db, `rooms/${currentRoomCode}`), { turn: proxTurno });
-                    alert("Você não tem peças válidas! Vez passada automaticamente.");
-                }, 1500);
+                    alert("Você não possui peças compatíveis. Passando a vez!");
+                }, 1600);
             }
 
-            // Montagem Visual das Pedras da Mão
+            // Insere cada elemento de marfim na mão do usuário
             minhaMao.forEach((p, index) => {
-                const el = document.createElement('div');
-                el.className = "domino-piece";
-                el.innerHTML = `<div>${p.l}</div><div>${p.r}</div>`;
+                const elPeca = criarElementoDomino(p.l, p.r);
                 
-                el.onclick = async () => {
+                elPeca.onclick = async () => {
                     if (!isMyTurn) return alert("Aguarde o seu turno!");
                     
                     let lMesa = room.board.left_edge;
@@ -381,57 +428,51 @@
                     let novaPeca = { ...p };
                     let encaixou = false;
 
-                    // LÓGICA DE ENCAIXE E GIRO AUTOMÁTICO NAS PONTAS DA MESA
-                    if (lMesa === null) { // Primeira peça da mesa
+                    // Mecânica de Encaixe Tradicional e Rotação Matemática de Lados
+                    if (lMesa === null) {
                         lMesa = p.l; rMesa = p.r; encaixou = true;
                         room.board.played_pieces = [novaPeca];
                     } else if (p.r === lMesa) {
                         lMesa = p.l; encaixou = true;
-                        room.board.played_pieces.unshift(novaPeca); // Insere na ponta esquerda
+                        room.board.played_pieces.unshift(novaPeca);
                     } else if (p.l === lMesa) {
-                        // Gira a peça automaticamente para encaixar
-                        novaPeca.l = p.r; novaPeca.r = p.l;
+                        novaPeca.l = p.r; novaPeca.r = p.l; // Inverte os lados visualmente
                         lMesa = p.r; encaixou = true;
                         room.board.played_pieces.unshift(novaPeca);
                     } else if (p.l === rMesa) {
                         rMesa = p.r; encaixou = true;
-                        room.board.played_pieces.push(novaPeca); // Insere na ponta direita
+                        room.board.played_pieces.push(novaPeca);
                     } else if (p.r === rMesa) {
-                        // Gira a peça automaticamente para encaixar
-                        novaPeca.l = p.r; novaPeca.r = p.l;
+                        novaPeca.l = p.r; novaPeca.r = p.l; // Inverte os lados visualmente
                         rMesa = p.l; encaixou = true;
                         room.board.played_pieces.push(novaPeca);
                     }
 
-                    if (!encaixou) return alert("Jogada Inválida! Essa peça não encaixa nas pontas da mesa.");
+                    if (!encaixou) return alert("Jogada Inválida! Escolha uma peça compatível com as pontas da mesa.");
 
-                    // Atualiza a mão local tirando a peça jogada
                     const novaMao = [...minhaMao];
                     novaMao.splice(index, 1);
 
-                    // SISTEMA DE PONTUAÇÃO E DETECÇÃO DE VITÓRIA
                     let updates = {};
                     updates[`/board/left_edge`] = lMesa;
                     updates[`/board/right_edge`] = rMesa;
                     updates[`/board/played_pieces`] = room.board.played_pieces;
                     updates[`/hands/${localPlayer.id}`] = novaMao;
-                    updates[`/last_played_id`] = Math.random().toString(); // Dispara som síncrono
+                    updates[`/last_played_id`] = Math.random().toString();
 
                     if (novaMao.length === 0) {
                         updates[`/status`] = "finished";
-                        alert("Parabéns! Você bateu o jogo e venceu a partida!");
+                        alert("Sensacional! Você bateu todas as peças e venceu o jogo!");
                     } else {
-                        // Passa a vez para o oponente
                         updates[`/turn`] = Object.keys(room.players).find(id => id !== localPlayer.id);
                     }
 
                     await update(ref(db, `rooms/${currentRoomCode}`), updates);
                 };
-                handContainer.appendChild(el);
+                handContainer.appendChild(elPeca);
             });
         }
         
-        // Garante o carregamento prévio das vozes do sistema operacional
         if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); }
     </script>
 </body>
