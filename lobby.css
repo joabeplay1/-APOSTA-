@@ -1,18 +1,21 @@
-/* Sidebar de Presença Lateral */
+/* ==========================================================================
+   SISTEMA DE LOBBY & CHAT FLUTUANTE MOVÍVEL — ESTILO PREMIUM DARK
+   ========================================================================== */
+
+/* Sidebar de Presença Lateral (Apenas no Lobby) */
 .lobby-sidebar {
     position: fixed;
-    top: 70px; /* Alinhado abaixo da header do jogo */
+    top: 70px;
     right: 0;
     width: 280px;
     height: calc(100vh - 70px);
-    background: rgba(10, 15, 13, 0.9);
+    background: rgba(10, 15, 13, 0.95);
     border-left: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     z-index: 80;
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease;
 }
 
 .sidebar-header {
@@ -71,7 +74,6 @@
 .player-info-meta .p-name {
     font-weight: 600;
     color: #fff;
-    font-size: 0.95rem;
 }
 
 .player-info-meta .p-status {
@@ -88,52 +90,78 @@
 .status-dot.Jogando { background-color: #ef4444; }
 .status-dot.Ausente { background-color: #eab308; }
 
-/* Janela do Chat Privado Flutuante */
+/* ==========================================================================
+   JANELA FLUTUANTE MOVÍVEL E MINIMIZÁVEL (DESIGN PREMIUM GLOW)
+   ========================================================================== */
 .chat-modal {
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 90;
+    /* Inicia no canto esquerdo inferior por padrão, livre da mesa central */
+    bottom: 90px;
+    left: 20px;
+    z-index: 999;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-end;
+    pointer-events: none; /* Deixa cliques passarem para a mesa se estiver invisível */
 }
 
 .chat-card {
-    width: 90%;
-    max-width: 420px;
-    height: 480px;
-    background: #0f1412;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    width: 340px;
+    height: 420px;
+    background: rgba(15, 20, 18, 0.85);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.7), 0 0 15px rgba(212, 175, 55, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    pointer-events: auto; /* Reativa cliques dentro do chat */
+    transition: width 0.3s ease, height 0.3s ease, border-color 0.3s;
+    touch-action: none; /* Melhora arraste no mobile */
 }
 
+/* Header do chat serve como barra para arrastar a janela */
 .chat-header {
-    background: rgba(0,0,0,0.4);
-    padding: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 0.8rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: move; /* Cursor de movimento no PC */
 }
 
 .chat-header span {
     font-weight: bold;
-    color: var(--gold-premium, #d4af37);
+    color: #d4af37;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    pointer-events: none;
 }
 
-.close-icon {
+.chat-controls-btns {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.chat-ctrl-btn {
     background: none;
+    border: none;
     color: #8a9a92;
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
 }
 
-.close-icon:hover { color: #fff; }
+.chat-ctrl-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
 
 .messages-container {
     flex: 1;
@@ -141,15 +169,15 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    background: radial-gradient(circle at center, #111614 0%, #0a0f0d 100%);
+    gap: 8px;
+    background: rgba(10, 15, 13, 0.4);
 }
 
 .msg-bubble {
-    max-width: 80%;
-    padding: 0.6rem 0.9rem;
-    border-radius: 14px;
-    font-size: 0.9rem;
+    max-width: 85%;
+    padding: 0.5rem 0.8rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
     line-height: 1.3;
     word-break: break-word;
 }
@@ -159,33 +187,32 @@
     color: #000;
     align-self: flex-end;
     border-bottom-right-radius: 2px;
-    font-weight: 500;
 }
 
 .msg-bubble.them {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
     color: #fff;
     align-self: flex-start;
     border-bottom-left-radius: 2px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .chat-footer {
-    padding: 0.8rem;
-    background: #0a0f0d;
+    padding: 0.6rem;
+    background: rgba(5, 8, 7, 0.6);
     display: flex;
-    gap: 8px;
+    gap: 6px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .chat-footer input {
     flex: 1;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.4);
     border: 1px solid rgba(255,255,255,0.08);
-    padding: 0.6rem 1rem;
-    border-radius: 10px;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
     color: #fff;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .chat-footer input:focus { outline: none; border-color: #d4af37; }
@@ -194,10 +221,28 @@
     background: #1a1a1a;
     border: 1px solid #d4af37;
     color: #d4af37;
-    padding: 0.6rem 1.2rem;
-    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
     font-weight: bold;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 .chat-footer button:hover { background: #d4af37; color: #000; }
+
+/* ESTADO MINIMIZADO (Estilo Barra/Ícone Inteligente na Lateral) */
+.chat-card.minimized {
+    width: 180px;
+    height: 40px;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.chat-card.minimized .messages-container,
+.chat-card.minimized .chat-footer {
+    display: none !important;
+}
+
+/* Controle de exibição da Barra de Presença nas telas do jogo */
+#game-screen ~ #lobby-presence-sidebar {
+    display: none !important; /* Esconde monitoramento lateral na tela do jogo */
+}
