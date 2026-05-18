@@ -72,7 +72,7 @@
             <div class="table-felt">
                 <div id="domino-chain" class="chain-container"></div>
             </div>
-        </main>
+        </header>
 
         <footer class="player-panel">
             <div class="opponent-hand-status">
@@ -93,7 +93,7 @@
 
     <link rel="stylesheet" href="lobby.css">
 
-   <div id="lobby-presence-sidebar" class="lobby-sidebar hidden">
+    <div id="lobby-presence-sidebar" class="lobby-sidebar hidden">
         <div class="sidebar-header">
             <h3>Jogadores Online</h3>
             
@@ -111,7 +111,7 @@
             </div>
         </div>
         <ul id="online-players-list">
-            </ul>
+        </ul>
     </div>
 
     <div id="private-chat-modal" class="chat-modal hidden">
@@ -124,7 +124,7 @@
                 </div>
             </div>
             <div id="chat-messages-box" class="messages-container">
-                </div>
+            </div>
             <div class="chat-footer">
                 <input type="text" id="chat-input-message" placeholder="Digite uma mensagem..." maxlength="200">
                 <button id="btn-send-message">Enviar</button>
@@ -132,6 +132,87 @@
         </div>
     </div>
     <script type="module" src="lobby.js"></script>
+
+
+    <link rel="stylesheet" href="wallet.css">
+
+    <button id="wallet-menu-trigger" class="wallet-trigger-btn" title="Abrir Carteira Premium">
+        <div class="wallet-icon-glow"></div>
+        💰
+    </button>
+
+    <div id="wallet-sidebar-container" class="wallet-sidebar hidden">
+        <div class="wallet-header" id="wallet-drag-handle">
+            <span class="wallet-title">SUÍTE <span>PREMIUM</span></span>
+            <div class="wallet-window-ctrls">
+                <button id="btn-minimize-wallet" class="wallet-ctrl-btn" title="Minimizar MenuMenu">—</button>
+            </div>
+        </div>
+
+        <div class="wallet-content-scroll">
+            
+            <div class="wallet-section shadow-card">
+                <h4>Saldos Financeiros</h4>
+                <div class="balance-row">
+                    <span class="balance-label">Disponível:</span>
+                    <span class="balance-val main-gold" id="wallet-fin-available">R$ 0,00</span>
+                </div>
+                <div class="balance-row">
+                    <span class="balance-label">Em Aposta:</span>
+                    <span class="balance-val text-red" id="wallet-fin-locked">R$ 0,00</span>
+                </div>
+                <hr class="wallet-divider">
+                <div class="history-mini-row">
+                    <span>Último Depósito: <b id="wallet-last-dep">R$ 0,00</b></span>
+                    <span>Último Saque: <b id="wallet-last-with">R$ 0,00</b></span>
+                </div>
+                <div class="status-badge" id="wallet-withdrawal-status">Status Saque: Nenhum</div>
+            </div>
+
+            <div class="wallet-section shadow-card">
+                <h4>Operações de Caixa</h4>
+                
+                <div class="wallet-action-box">
+                    <h5>Adicionar Fundos via PIX</h5>
+                    <button id="btn-wallet-deposit-pix" class="btn-wallet-primary">Gerar Código PIX Copy-Paste</button>
+                </div>
+
+                <div class="wallet-action-box" style="margin-top: 15px;">
+                    <h5>Retirar Saldo / Estorno PIX</h5>
+                    <input type="text" id="wallet-pix-key" placeholder="Confirme sua Chave PIX (CPF/E-mail/Celular)">
+                    <input type="number" id="wallet-withdraw-amount" placeholder="Valor da Retirada (R$)" min="1">
+                    <button id="btn-wallet-withdraw" class="btn-wallet-secondary">Solicitar Retirada Imediata</button>
+                </div>
+            </div>
+
+            <div class="wallet-section shadow-card">
+                <h4>Painel do Jogo & Apostas</h4>
+                <div class="match-meta-box">
+                    <p>Aposta da Partida: <span id="wallet-match-bet-val">R$ 0,00</span></p>
+                    <p>Premiação Acumulada: <span id="wallet-match-prize" class="main-gold">R$ 0,00</span></p>
+                </div>
+                <div class="ranking-container">
+                    <h5>Ranking de Apostadores</h5>
+                    <ol id="wallet-ranking-list">
+                        <li class="muted-text">Aguardando dados...</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="wallet-section security-box">
+                <p>🔒 Conexão Criptografada SSL Ativa</p>
+                <p id="wallet-sec-ip">IP Registrado: Carregando...</p>
+                <p id="wallet-sec-activity">Status Antifraude: Verificado</p>
+            </div>
+
+        </div>
+
+        <div id="wallet-resize-handle" class="wallet-resizer"></div>
+    </div>
+
+    <div id="wallet-notification-container" class="wallet-notif-area"></div>
+
+    <script type="module" src="wallet.js"></script>
 
 </body>
 </html>
