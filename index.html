@@ -109,20 +109,22 @@
     </div>
 
     <div id="private-chat-modal" class="chat-modal hidden">
-        <div class="chat-card">
-            <div class="chat-header">
+        <div id="draggable-chat-card" class="chat-card">
+            <div class="chat-header" id="chat-drag-handle">
                 <span id="chat-target-name">Conversa Privada</span>
-                <button id="btn-close-chat" class="close-icon">&times;</button>
+                <div class="chat-controls-btns">
+                    <button id="btn-minimize-chat" class="chat-ctrl-btn" title="Minimizar">—</button>
+                    <button id="btn-close-chat" class="chat-ctrl-btn" title="Fechar Conversa">&times;</button>
+                </div>
             </div>
             <div id="chat-messages-box" class="messages-container">
                 </div>
             <div class="chat-footer">
-                <input type="text" id="chat-input-message" placeholder="Digite sua mensagem ou o código da mesa..." maxlength="200">
+                <input type="text" id="chat-input-message" placeholder="Digite uma mensagem..." maxlength="200">
                 <button id="btn-send-message">Enviar</button>
             </div>
         </div>
     </div>
-
     <script type="module" src="lobby.js"></script>
 
 </body>
