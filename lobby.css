@@ -1,19 +1,22 @@
 /* ==========================================================================
-   BARRA LATERAL DE MONITORAMENTO (APENAS NA TELA INICIAL / LOBBY)
+   BARRA LATERAL DE MONITORAMENTO DE JOGADORES (CORRIGIDA E ROLÁVEL)
    ========================================================================== */
 .lobby-sidebar {
     position: fixed;
-    top: 70px;
-    right: 0;
-    width: 280px;
-    height: calc(100vh - 70px);
+    top: 20px; /* Descolado do topo para não sumir ou cortar o cabeçalho */
+    right: 20px; /* Descolado da lateral direita para um visual flutuante elegante */
+    width: 290px;
+    height: calc(100vh - 40px); /* Garante encaixe perfeito na tela sem sumir no rodapé */
     background: rgba(10, 15, 13, 0.95);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.2); /* Borda dourada premium combinando com o tema */
+    border-radius: 16px; /* Cantos arredondados modernos estilo Discord */
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     z-index: 80;
-    display: none; /* ESCONDE POR PADRÃO EM TODAS AS TELAS */
-    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+    display: none; /* Escondido por padrão nas telas de jogo */
+    flex-direction: column;
+    box-shadow: -5px 10px 30px rgba(0, 0, 0, 0.7);
+    overflow: hidden; /* Garante que os elementos internos respeitem os cantos redondos */
 }
 
 /* MOSTRA A BARRA DE MONITORAMENTO APENAS SE A TELA INICIAL ESTIVER ATIVA */
@@ -22,33 +25,84 @@
 }
 
 .sidebar-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-header h3 {
     font-size: 1.1rem;
     color: #f0f4f2;
-    margin-bottom: 0.8rem;
     letter-spacing: 0.5px;
+    margin: 0;
+}
+
+/* NOVO CAMPO DE ENTRADA INTERNO DA BARRA LATERAL */
+.sidebar-name-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sidebar-name-input-group label {
+    font-size: 0.75rem;
+    color: #d4af37; /* Cor dourada premium da suíte */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+}
+
+.sidebar-name-input-group input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    padding: 0.6rem;
+    color: #fff;
+    font-size: 0.85rem;
+    transition: border-color 0.2s;
+}
+
+.sidebar-name-input-group input:focus {
+    outline: none;
+    border-color: #d4af37;
 }
 
 .my-status-control select {
     width: 100%;
     background: #000;
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: #fff;
     padding: 0.5rem;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
+/* ÁREA DE ROLAGEM DOS JOGADORES ONLINE (SOBE E DESCE LIVREMENTE) */
 #online-players-list {
     list-style: none;
-    overflow-y: auto;
+    overflow-y: auto; /* Ativa a rolagem vertical de oponentes */
     flex: 1;
     padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Customização estética da barra de rolagem interna */
+#online-players-list::-webkit-scrollbar {
+    width: 6px;
+}
+#online-players-list::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.2);
+    border-radius: 4px;
+}
+#online-players-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.5);
 }
 
 .player-item {
@@ -59,7 +113,6 @@
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.04);
     border-radius: 10px;
-    margin-bottom: 0.5rem;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
 }
@@ -195,7 +248,7 @@
 .msg-bubble.them {
     background: rgba(255, 255, 255, 0.07);
     color: #fff;
-    align-start: flex-start;
+    align-self: flex-start;
     border-bottom-left-radius: 2px;
     border: 1px solid rgba(255, 255, 255, 0.04);
 }
@@ -252,7 +305,10 @@
    ========================================================================== */
 @media (max-width: 768px) {
     .lobby-sidebar {
-        width: 200px;
+        top: 10px;
+        right: 10px;
+        width: 210px;
+        height: calc(100vh - 20px);
     }
     .chat-card {
         width: 280px;
