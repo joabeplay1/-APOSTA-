@@ -100,10 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (closeBtn) closeBtn.onclick = toggleMinimize;
     }
 
-    // Ativa o motor de arraste livre (Drag & Drop)
+    // Ativa o motor de arraste livre e suave (Drag & Drop) acelerado por hardware
     makeElementDraggable(chatCard, document.getElementById('chat-drag-handle'));
     
-    // Rotina de limpeza automática cíclica de mensagens antigas
+    // Rotina de limpeza automática cíclica de mensagens antiga
     setInterval(performAutoGarbageCollection, 5000);
 });
 
@@ -266,68 +266,76 @@ function performAutoGarbageCollection() {
     }, { onlyOnce: true });
 }
 
-// Mecanismo de Movimentação Omnidirecional (PC e Mobile)
+// ==========================================================================
+// MOTOR ULTRA-SUAVE DE ARRASTE (DRAG & DROP) OMNIDIRECIONAL [PC & MOBILE]
+// ==========================================================================
 function makeElementDraggable(elmnt, dragHandle) {
     if (!elmnt) return;
-    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     
-    if (dragHandle) {
-        dragHandle.onmousedown = dragMouseDown;
-        dragHandle.ontouchstart = dragMouseDown;
-    } else {
-        elmnt.onmousedown = dragMouseDown;
-        elmnt.ontouchstart = dragMouseDown;
-    }
+    let currentX = 0, currentY = 0;
+    let initialX = 0, initialY = 0;
+    let xOffset = 0, yOffset = 0;
+    let active = false;
 
-    function dragMouseDown(e) {
-        e = e || window.event;
-        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-            e.preventDefault();
-        }
-        
-        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        
-        pos3 = clientX;
-        pos4 = clientY;
-        
-        if (e.type.includes('touch')) {
-            document.ontouchend = closeDragElement;
-            document.ontouchmove = elementDrag;
+    const handle = dragHandle || elmnt;
+
+    handle.addEventListener("mousedown", dragStart, { passive: false });
+    handle.addEventListener("touchstart", dragStart, { passive: false });
+
+    function dragStart(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+
+        active = true;
+
+        if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+            document.addEventListener("touchend", dragEnd, { passive: true });
+            document.addEventListener("touchmove", drag, { passive: false });
         } else {
-            document.onmouseup = closeDragElement;
-            document.onmousemove = elementDrag;
+            e.preventDefault();
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+            document.addEventListener("mouseup", dragEnd, { passive: true });
+            document.addEventListener("mousemove", drag, { passive: false });
         }
     }
 
-    function elementDrag(e) {
-        e = e || window.event;
-        
-        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    function drag(e) {
+        if (!active) return;
+        e.preventDefault(); 
 
-        pos1 = pos3 - clientX;
-        pos2 = pos4 - clientY;
-        pos3 = clientX;
-        pos4 = clientY;
-        
-        let newTop = elmnt.offsetTop - pos2;
-        let newLeft = elmnt.offsetLeft - pos1;
+        const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
 
-        if (newTop < 0) newTop = 0;
-        if (newLeft < 0) newLeft = 0;
-        if (newTop > window.innerHeight - elmnt.clientHeight) newTop = window.innerHeight - elmnt.clientHeight;
-        if (newLeft > window.innerWidth - elmnt.clientWidth) newLeft = window.innerWidth - elmnt.clientWidth;
+        currentX = clientX - initialX;
+        currentY = clientY - initialY;
 
-        elmnt.style.top = newTop + "px";
-        elmnt.style.left = newLeft + "px";
-        elmnt.style.bottom = "auto";
+        xOffset = currentX;
+        yOffset = currentY;
+
+        requestAnimationFrame(() => {
+            const rect = elmnt.getBoundingClientRect();
+            const minX = -elmnt.offsetLeft;
+            const minY = -elmnt.offsetTop;
+            const maxX = window.innerWidth - elmnt.offsetLeft - rect.width;
+            const maxY = window.innerHeight - elmnt.offsetTop - rect.height;
+
+            if (xOffset < minX) xOffset = minX;
+            if (yOffset < minY) yOffset = minY;
+            if (xOffset > maxX) xOffset = maxX;
+            if (yOffset > maxY) yOffset = maxY;
+
+            elmnt.style.transform = `translate3d(${xOffset}px, ${yOffset}px, 0)`;
+            elmnt.style.bottom = "auto"; 
+        });
     }
 
-    function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-        document.ontouchend = null;
-        document.ontouchmove = null;
+    function dragEnd() {
+        active = false;
+        document.removeEventListener("mousemove", drag);
+        document.removeEventListener("mouseup", dragEnd);
+        document.removeEventListener("touchmove", drag);
+        document.removeEventListener("touchend", dragEnd);
     }
 }
