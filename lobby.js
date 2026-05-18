@@ -76,20 +76,28 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-join-room').addEventListener('click', bindSync);
     
     // Controles do Chat Privado Flutuante
-    document.getElementById('btn-close-chat').onclick = closePrivateChat;
     document.getElementById('btn-send-message').onclick = sendPrivateMessage;
     document.getElementById('select-my-status').onchange = (e) => updateMyStatus(e.target.value);
     
-    // Inicialização do botão de minimizar/expandir o card do chat
+    // ==========================================================================
+    // SISTEMA DE MINIMIZAR INTELIGENTE PARA O BOTÃO FECHAR E MINIMIZAR
+    // ==========================================================================
     const chatCard = document.getElementById('draggable-chat-card');
     const minimizeBtn = document.getElementById('btn-minimize-chat');
+    const closeBtn = document.getElementById('btn-close-chat');
     
-    if (minimizeBtn && chatCard) {
-        minimizeBtn.onclick = (e) => {
+    if (chatCard) {
+        const toggleMinimize = (e) => {
             e.stopPropagation();
             chatCard.classList.toggle('minimized');
-            minimizeBtn.innerText = chatCard.classList.contains('minimized') ? '🗖' : '—';
+            if (minimizeBtn) {
+                minimizeBtn.innerText = chatCard.classList.contains('minimized') ? '🗖' : '—';
+            }
         };
+
+        // Vincula a ação de segurança: Ambos apenas minimizam para não fechar permanentemente
+        if (minimizeBtn) minimizeBtn.onclick = toggleMinimize;
+        if (closeBtn) closeBtn.onclick = toggleMinimize;
     }
 
     // Ativa o motor de arraste livre (Drag & Drop)
@@ -187,10 +195,14 @@ function openPrivateChat(targetId, targetName) {
     });
 }
 
+// Mantém a estabilidade do chat minimizando em vez de remover o nó estrutural
 function closePrivateChat() {
-    document.getElementById('private-chat-modal').classList.add('hidden');
-    currentChatRoomId = null;
-    if (currentChatListener) currentChatListener();
+    const chatCard = document.getElementById('draggable-chat-card');
+    if (chatCard) {
+        chatCard.classList.add('minimized');
+        const minimizeBtn = document.getElementById('btn-minimize-chat');
+        if (minimizeBtn) minimizeBtn.innerText = '🗖';
+    }
 }
 
 function sendPrivateMessage() {
