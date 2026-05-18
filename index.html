@@ -93,9 +93,15 @@
 
     <link rel="stylesheet" href="lobby.css">
 
-    <div id="lobby-presence-sidebar" class="lobby-sidebar hidden">
+   <div id="lobby-presence-sidebar" class="lobby-sidebar hidden">
         <div class="sidebar-header">
             <h3>Jogadores Online</h3>
+            
+            <div class="sidebar-name-input-group">
+                <label for="sidebar-player-name">Escreva seu nome aqui para ficar visível:</label>
+                <input type="text" id="sidebar-player-name" placeholder="Seu apelido..." maxlength="15">
+            </div>
+
             <div class="my-status-control">
                 <select id="select-my-status">
                     <option value="Disponível">🟢 Disponível</option>
