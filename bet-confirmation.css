@@ -1,66 +1,72 @@
 /* ==========================================================================
-   TRAVA OBRIGATÓRIA DE TELA CHEIA - CENTRAL DE APOSTAS E PIX SECURITY
+   PAINEL DE APOSTAS — FIXO E CENTRALIZADO EM CIMA DO LOBBY (TAMANHO ORIGINAL)
    ========================================================================== */
 .bet-panel-container {
     position: fixed;
-    /* Trava em tela cheia ocupando todo o navegador */
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    max-width: 100% !important;
-    background: radial-gradient(circle at center, #111614 0%, #060908 100%);
-    border: none;
-    border-radius: 0px;
-    box-shadow: none;
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centraliza perfeitamente no meio da tela */
+    width: 90%;
+    max-width: 580px; /* Mantém o tamanho original menor, sem ser tela cheia */
+    height: auto;
+    max-height: 90vh;
+    background: rgba(15, 20, 18, 0.98);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 16px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(212, 175, 55, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     
-    /* CAMADA CRUCIAL: Fica abaixo do Chat (950) e Monitoramento (950), mas acima do Jogo e do Lobby */
+    /* Fica em cima do Lobby, mas deixa o Chat (950) e Monitoramento livres */
     z-index: 900; 
     
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     overflow-y: auto;
-    padding: 2rem;
-    transform: none !important;
-    left: 0 !important;
-    top: 0 !important;
 }
 
-/* Esconde permanentemente o botão de minimizar/traço no cabeçalho */
+/* Esconde o botão de minimizar/traço para garantir que seja obrigatório preencher no lobby */
 .bet-panel-minimize-btn {
     display: none !important;
 }
 
-/* Mantém o corpo do painel centralizado e com largura controlada no meio do blackout */
-.bet-panel-body {
-    width: 100%;
-    max-width: 580px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(212, 175, 55, 0.25);
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+/* Regra nativa para destruir o painel e liberar o tabuleiro 100% limpo quando o jogo começar */
+#game-screen:not(.hidden) ~ #bet-central-panel {
+    display: none !important;
+}
+
+.bet-panel-header {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1rem 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.panel-mode-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #d4af37;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.bet-panel-content {
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-.bet-panel-body.collapsed {
-    display: flex !important; /* Impede que o jogador colapse a tela de segurança */
-}
-
-/* Ajustes estruturais internos */
 .game-mode-selector-box {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
 }
 
 .game-mode-selector-box label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #8a9a92;
     font-weight: bold;
 }
@@ -69,7 +75,7 @@
     background: #000;
     border: 1px solid rgba(212, 175, 55, 0.3);
     color: #fff;
-    padding: 0.6rem;
+    padding: 0.5rem;
     border-radius: 8px;
     font-size: 0.85rem;
 }
@@ -77,14 +83,15 @@
 .bet-players-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
+    margin: 5px 0;
 }
 
 .bet-player-card {
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 10px;
-    padding: 1rem;
+    padding: 0.8rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -95,27 +102,28 @@
     background: rgba(34, 197, 94, 0.03);
 }
 
-.p-meta-data { display: flex; flex-direction: column; gap: 3px; }
-.p-grid-name { font-size: 0.9rem; font-weight: bold; color: #fff; }
+.p-meta-data { display: flex; flex-direction: column; gap: 2px; }
+.p-grid-name { font-size: 0.85rem; font-weight: bold; color: #fff; }
 .p-grid-bet { font-size: 0.75rem; color: #d4af37; }
 .p-grid-status { font-size: 0.7rem; font-weight: 600; }
 
 .prize-pool-display-box {
-    background: #000;
+    background: rgba(0, 0, 0, 0.4);
     border: 1px dashed rgba(212, 175, 55, 0.4);
     border-radius: 12px;
-    padding: 1.2rem;
+    padding: 1rem;
     text-align: center;
 }
 
 .prize-pool-total {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: 900;
     color: #22c55e;
+    margin-top: 4px;
 }
 
 .bet-banner-status {
-    padding: 0.8rem;
+    padding: 0.7rem;
     border-radius: 8px;
     font-size: 0.8rem;
     text-align: center;
@@ -131,11 +139,11 @@
     color: #000;
     border: none;
     font-weight: bold;
-    padding: 0.9rem;
+    padding: 0.8rem;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 0.95rem;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
 }
 
 .btn-bet-confirm-action:disabled {
@@ -146,6 +154,6 @@
 }
 
 @media (max-width: 768px) {
+    .bet-panel-container { width: 95%; }
     .bet-players-grid { grid-template-columns: 1fr; }
-    .bet-panel-body { padding: 1.2rem; }
 }
