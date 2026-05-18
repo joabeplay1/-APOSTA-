@@ -25,12 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('player-name');
     const sidebarNameInput = document.getElementById('sidebar-player-name');
 
-    // REGISTRO AUTOMÁTICO (CAMPO CENTRAL): Assim que o jogador digita o nome e sai do campo (ou aperta Enter)
+    // REGISTRO AUTOMÁTICO (CAMPO CENTRAL): Sincroniza a barra lateral e envia pro Firebase
     if (nameInput) {
         nameInput.addEventListener('blur', () => {
             const name = nameInput.value.trim();
             if (name) {
-                if (sidebarNameInput) sidebarNameInput.value = name; // Sincroniza a barra lateral
+                if (sidebarNameInput) sidebarNameInput.value = name;
                 initLobbyPresence(name);
             }
         });
@@ -39,19 +39,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'Enter') {
                 const name = nameInput.value.trim();
                 if (name) {
-                    if (sidebarNameInput) sidebarNameInput.value = name; // Sincroniza a barra lateral
+                    if (sidebarNameInput) sidebarNameInput.value = name;
                     initLobbyPresence(name);
                 }
             }
         });
     }
 
-    // SINCRONIZAÇÃO E REGISTRO VIA CAMPO DA BARRA LATERAL
+    // REGISTRO VIA CAMPO DA BARRA LATERAL (DIREITA)
     if (sidebarNameInput) {
         sidebarNameInput.addEventListener('blur', () => {
             const name = sidebarNameInput.value.trim();
             if (name) {
-                if (nameInput) nameInput.value = name; // Sincroniza o campo central
+                if (nameInput) nameInput.value = name; // Alimenta o central para a criação da sala futura
                 initLobbyPresence(name);
             }
         });
@@ -60,14 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'Enter') {
                 const name = sidebarNameInput.value.trim();
                 if (name) {
-                    if (nameInput) nameInput.value = name; // Sincroniza o campo central
+                    if (nameInput) nameInput.value = name;
                     initLobbyPresence(name);
                 }
             }
         });
     }
 
-    // Garante que se o jogador clicar direto nos botões do jogo principal, a presença também ativa
+    // Vinculação de segurança nos botões de sala
     const bindSync = () => {
         const name = nameInput ? nameInput.value.trim() : "";
         if (name) initLobbyPresence(name);
@@ -95,11 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ativa o motor de arraste livre (Drag & Drop)
     makeElementDraggable(chatCard, document.getElementById('chat-drag-handle'));
     
-    // Rotina de limpeza automática cíclica de mensagens antigas (Gera economia de memória)
+    // Rotina de limpeza automática cíclica de mensagens antigas
     setInterval(performAutoGarbageCollection, 5000);
 });
 
-// Inicializa o sistema de Presença no Firebase de forma imediata
+// Inicializa o sistema de Presença no Firebase
 function initLobbyPresence(name) {
     if (myLobbyId) return; // Impede duplicação do mesmo jogador na barra
     
@@ -115,13 +115,12 @@ function initLobbyPresence(name) {
 
     set(newPlayerRef, playerData);
 
-    // Remove o jogador da barra lateral se ele fechar a aba ou o navegador
+    // Remove do monitoramento instantaneamente se fechar a aba
     onDisconnect(newPlayerRef).remove();
 
-    // Torna a barra lateral visível imediatamente na tela inicial
     document.getElementById('lobby-presence-sidebar').classList.remove('hidden');
 
-    // Escuta em tempo real as conexões de outros usuários do Domino Aposta
+    // Escuta em tempo real as conexões de todos os usuários
     onValue(presenceListRef, (snapshot) => {
         renderOnlinePlayers(snapshot.val());
     });
@@ -140,22 +139,30 @@ function renderOnlinePlayers(playersObj) {
     if (!playersObj) return;
 
     Object.keys(playersObj).forEach(key => {
-        if (key === myLobbyId) return; // Oculta você mesmo da sua própria lista lateral
-
         const player = playersObj[key];
         const li = document.createElement('li');
         li.className = 'player-item';
         
+        // Adiciona uma tag indicativa sutil se o cartão renderizado for o seu próprio usuário conectado
+        const isMe = (key === myLobbyId);
+        const displayName = isMe ? `${player.name} (Você)` : player.name;
+
         li.innerHTML = `
             <div class="player-info-meta">
-                <span class="p-name">${player.name}</span>
+                <span class="p-name" style="${isMe ? 'color: #d4af37;' : 'color: #fff;'}">${displayName}</span>
                 <span class="p-status">${player.status}</span>
             </div>
             <div class="status-dot ${player.status}"></div>
         `;
 
-        // Ao clicar no nome do jogador na barra lateral, dispara o chat flutuante
-        li.onclick = () => openPrivateChat(key, player.name);
+        // Se for você mesmo, o clique é bloqueado. Se for outro jogador, abre o chat flutuante de apostas
+        if (!isMe) {
+            li.onclick = () => openPrivateChat(key, player.name);
+        } else {
+            li.style.cursor = 'default';
+            li.style.border = '1px dashed rgba(212, 175, 55, 0.3)';
+        }
+        
         container.appendChild(li);
     });
 }
@@ -163,10 +170,9 @@ function renderOnlinePlayers(playersObj) {
 // Lógica de Conexão Dedicada ao Chat Privado
 function openPrivateChat(targetId, targetName) {
     if (!myLobbyId) {
-        return alert("Por favor, digite seu Nome/Apelido no campo central ou na barra lateral para ativar seu chat!");
+        return alert("Por favor, digite seu Nome/Apelido para ativar o chat!");
     }
     
-    // Cria um ID de sala único baseado nos identificadores dos dois jogadores
     currentChatRoomId = myLobbyId < targetId ? `${myLobbyId}_${targetId}` : `${targetId}_${myLobbyId}`;
     
     document.getElementById('chat-target-name').innerText = `Conversa com ${targetName}`;
@@ -217,7 +223,7 @@ function renderMessages(messagesObj) {
     box.scrollTop = box.scrollHeight;
 }
 
-// Motor de Autolimpeza do Firebase (Filtro de estabilidade de 10 minutos)
+// Motor de Autolimpeza do Firebase (10 minutos)
 function performAutoGarbageCollection() {
     if (!myLobbyId) return;
 
@@ -248,7 +254,7 @@ function performAutoGarbageCollection() {
     }, { onlyOnce: true });
 }
 
-// Mecanismo Computacional de Movimentação Omnidirecional (PC e Mobile)
+// Mecanismo de Movimentação Omnidirecional (PC e Mobile)
 function makeElementDraggable(elmnt, dragHandle) {
     if (!elmnt) return;
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
