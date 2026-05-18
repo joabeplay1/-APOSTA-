@@ -21,27 +21,19 @@ let currentMode = "1x1";
 let myLocalRole = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Mecanismo de minimizar/expandir o painel superior clicando no header
     const headerToggle = document.getElementById('bet-panel-toggle');
     const bodyContent = document.getElementById('bet-panel-content');
-    const minimizeBtn = document.getElementById('btn-minimize-bet-panel');
+    const minBtn = document.getElementById('btn-minimize-wallet');
 
-    // SISTEMA DE MINIMIZAR INTELIGENTE (Fecha clicando no cabeçalho ou no botão de traço)
     if (headerToggle && bodyContent) {
-        const togglePanel = (e) => {
-            e.stopPropagation(); // Impede conflitos de clique
+        headerToggle.onclick = () => {
             bodyContent.classList.toggle('collapsed');
-            
-            if (minimizeBtn) {
-                // Se estiver colapsado mostra o ícone de expandir, senão o de traço
-                minimizeBtn.innerText = bodyContent.classList.contains('collapsed') ? '🗖' : '—';
-            }
+            document.getElementById('btn-minimize-bet-panel').innerText = bodyContent.classList.contains('collapsed') ? '🗖' : '—';
         };
-
-        headerToggle.onclick = togglePanel;
-        if (minimizeBtn) minimizeBtn.onclick = togglePanel;
     }
 
-    // Escuta de alteração de modo de jogo (Apenas o p1 altera no Firebase)
+    // Escuta de alteração de modo de jogo (Apenas o Dono/Criador da sala p1 sincroniza no Firebase)
     const modeSelect = document.getElementById('select-match-mode');
     if (modeSelect) {
         modeSelect.onchange = (e) => {
@@ -97,6 +89,7 @@ function syncBetPanelState(room) {
     const modeSelect = document.getElementById('select-match-mode');
     if (modeSelect) {
         modeSelect.value = currentMode;
+        // Se não for o Dono da Sala (p1), bloqueia a alteração do select
         modeSelect.disabled = (myLocalRole !== 'p1');
     }
 
@@ -113,6 +106,7 @@ function renderPlayersGrid(room) {
     const container = document.getElementById('bet-grid-players-container');
     container.innerHTML = '';
 
+    // Define quantos slots serão gerados com base no modo ativo
     const slotsCount = (currentMode === '1x1') ? 2 : 4;
     let totalAccumulatedPrize = 0;
     let allBetsEqual = true;
@@ -161,10 +155,12 @@ function renderPlayersGrid(room) {
         container.appendChild(card);
     }
 
+    // Atualiza o mostrador do Prêmio Total Acumulado
     document.getElementById('bet-prize-total-val').innerText = `PRÊMIO TOTAL: R$ ${totalAccumulatedPrize.toFixed(2).replace('.', ',')}`;
 
+    // BANNER DE VALIDAÇÃO REQUISITADA
     const banner = document.getElementById('bet-panel-validation-banner');
-    const mainStartBtn = document.getElementById('btn-create-room');
+    const mainStartBtn = document.getElementById('btn-create-room'); // Botão nativo de start da mesa
 
     if (totalPlayersConnected < slotsCount) {
         banner.className = "bet-banner-status bet-banner-error";
@@ -181,9 +177,10 @@ function renderPlayersGrid(room) {
     } else {
         banner.className = "bet-banner-status bet-banner-success";
         banner.innerText = "✅ Tudo pronto! Todos os jogadores confirmaram. A mesa está liberada para começar.";
-        if (mainStartBtn) mainStartBtn.disabled = false;
+        if (mainStartBtn) mainStartBtn.disabled = false; // Desbloqueia início do jogo principal
     }
 
+    // Desativa botão local se o player já confirmou
     const myBtn = document.getElementById('btn-confirm-my-bet');
     if (myBtn && myLocalRole) {
         const iHaveConfirmed = room[myLocalRole]?.betConfirmed;
@@ -192,12 +189,15 @@ function renderPlayersGrid(room) {
     }
 }
 
+// Manipulador de Dedução de Saldo Disponível e Envio da Confirmação
 function handleMyBetConfirmation() {
     if (!activeRoomCode || !myLocalRole) return;
 
+    // Puxa o valor da intenção de aposta definida no seletor lateral
     const currentBetString = document.getElementById('wallet-current-bet')?.innerText || "R$ 1,00";
     const betAmount = parseFloat(currentBetString.replace('R$', '').replace(',', '.').trim());
 
+    // Executa transação atômica na finança do usuário antes de dar o OK na mesa
     const currentName = document.getElementById('player-name')?.value.trim();
     const myFinanceId = btoa(currentName).replace(/=/g, "");
 
@@ -205,13 +205,15 @@ function handleMyBetConfirmation() {
         if (!account) return account;
         if (account.available < betAmount) {
             alert("Saldo insuficiente na carteira para confirmar essa aposta!");
-            return;
+            return; // Cancela transação de caixa
         }
+        // Retira do disponível e aloca no bloqueado
         account.available -= betAmount;
         account.locked += betAmount;
         return account;
     }).then((result) => {
         if (result.committed) {
+            // Insere confirmação definitiva no Firebase dentro do nó da partida
             set(ref(db, `rooms/${activeRoomCode}/${myLocalRole}/betConfirmed`), true);
         }
     });
