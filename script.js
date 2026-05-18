@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// Suas credenciais oficiais inseridas de forma nativa no módulo central
+// Configuração oficial do seu Firebase integrada de forma nativa
 const firebaseConfig = {
     apiKey: "AIzaSyCZ4rOliexofYP8vyRLzUeX3mf5uXG6WRM",
     authDomain: "aposta-96213.firebaseapp.com",
@@ -17,7 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Estado Local da Sessão
+// Estado Local da Sessão do Navegador
 let gameState = {
     roomCode: null,
     playerRole: null, 
@@ -26,7 +26,7 @@ let gameState = {
     isMyTurn: false
 };
 
-// Gerador de Áudio Interno contra quebras de asset no Github Pages
+// Sintetizador de Áudio Nativo (Web Audio API)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playDominoSound(frequency = 300, type = 'sine', duration = 0.08) {
     try {
@@ -40,10 +40,10 @@ function playDominoSound(frequency = 300, type = 'sine', duration = 0.08) {
         gain.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + duration);
-    } catch (e) { console.log("Áudio aguardando interação inicial."); }
+    } catch (e) { console.log("Aguardando interação inicial para liberar o áudio."); }
 }
 
-// Mapeamento dos Telas
+// Mapeamento de Telas da Interface
 const screens = {
     loading: document.getElementById('loading-screen'),
     lobby: document.getElementById('lobby-screen'),
@@ -51,12 +51,12 @@ const screens = {
     game: document.getElementById('game-screen')
 };
 
-// Evento Inicial de Entrada
+// Fechamento automático da tela de carregamento
 window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => screens.loading.classList.add('hidden'), 1000);
 });
 
-// Listener de botões da interface
+// Ações dos Botões Principais do Lobby
 document.getElementById('btn-create-room').addEventListener('click', () => {
     const name = document.getElementById('player-name').value.trim();
     if (!name) return alert('Por favor, digite seu nome primeiro!');
@@ -80,7 +80,7 @@ document.getElementById('btn-join-room').addEventListener('click', () => {
     joinRoomOnFirebase();
 });
 
-// Configura Sala no RTDB
+// P1 - Inicializa a estrutura da sala no Firebase
 function setupRoomOnFirebase() {
     const roomRef = ref(db, 'rooms/' + gameState.roomCode);
     const initialData = {
@@ -99,19 +99,19 @@ function setupRoomOnFirebase() {
     });
 }
 
-// Vincula Segundo Jogador à Sala
+// P2 - Vincula o nome do segundo jogador e aguarda a distribuição do P1
 function joinRoomOnFirebase() {
     const roomRef = ref(db, 'rooms/' + gameState.roomCode);
     update(roomRef, {
         'p2/name': gameState.playerName,
-        'status': 'playing'
+        'status': 'playing' // Ativa o gatilho para o P1 rodar a distribuição das peças de ambos
     }).then(() => {
         listenToRoomChanges();
     }).catch(() => alert('Erro ao conectar. Código inválido.'));
 }
 
 // ==========================================================================
-// CENTRALIZADOR DA SINCRONIZAÇÃO SEM CONCORRÊNCIA DE BOT
+// MONITOR DE ESTADO DA MESA EM TEMPO REAL (SEM CONCORRÊNCIA DE TELA VAZIA)
 // ==========================================================================
 function listenToRoomChanges() {
     const roomRef = ref(db, 'rooms/' + gameState.roomCode);
@@ -124,18 +124,19 @@ function listenToRoomChanges() {
                 switchScreen('game');
                 document.getElementById('game-room-id').innerText = `#${gameState.roomCode}`;
                 
-                // Apenas P1 gera o baralho uma única vez atómicamente
+                // Controle Atômico: Apenas o criador (P1) monta as mãos de uma vez só no servidor
                 if (gameState.playerRole === 'p1' && (!data.deck || data.deck.length === 0) && (!data.p1.hand)) {
                     generateAndDistributePieces();
                     return;
                 }
             }
+            // Sincroniza e redesenha a tela de ambos os lados simultaneamente
             updateGameTable(data);
         }
     });
 }
 
-// Distribuição unificada sem apagar mãos
+// Embaralhador Profissional Brasileiro com Verificação de Bucha de Seis [6-6]
 function generateAndDistributePieces() {
     let pool = [];
     for (let i = 0; i <= 6; i++) {
@@ -144,6 +145,7 @@ function generateAndDistributePieces() {
         }
     }
     
+    // Algoritmo Fisher-Yates
     for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -153,10 +155,12 @@ function generateAndDistributePieces() {
     const p2Hand = pool.slice(7, 14);
     const remainingDeck = pool.slice(14);
 
+    // Regra Oficial de saída: Quem tem o duque de seis começa jogando
     let firstTurn = 'p1';
     const p2HasBucha6 = p2Hand.some(p => p.left === 6 && p.right === 6);
     if (p2HasBucha6) firstTurn = 'p2';
 
+    // Atualiza a árvore do Firebase unificada. O evento onValue se encarrega de dar o refresh nas duas telas
     update(ref(db, 'rooms/' + gameState.roomCode), {
         'p1/hand': p1Hand,
         'p2/hand': p2Hand,
@@ -165,29 +169,36 @@ function generateAndDistributePieces() {
     });
 }
 
-// Renderiza a interface a cada atualização do banco
+// Atualização Visual Dinâmica de Componentes e Contadores
 function updateGameTable(data) {
+    // Altera nomes do painel e placares
     document.getElementById('score-p1-name').innerText = data.p1.name || "Aguardando...";
     document.getElementById('score-p2-name').innerText = data.p2.name || "Aguardando...";
     document.getElementById('score-p1-val').innerText = String(data.p1.score).padStart(2, '0');
     document.getElementById('score-p2-val').innerText = String(data.p2.score).padStart(2, '0');
 
+    // Validação de Turno Local
     gameState.isMyTurn = (data.turn === gameState.playerRole);
     const activePlayerName = data[data.turn] ? data[data.turn].name : '...';
     document.getElementById('turn-indicator').innerText = gameState.isMyTurn ? "Sua Vez de Jogar!" : `Vez de: ${activePlayerName}`;
     document.getElementById('turn-indicator').style.color = gameState.isMyTurn ? "var(--gold-premium)" : "var(--text-muted)";
 
+    // Renderização das peças que pertencem à sua mão
     gameState.hand = data[gameState.playerRole]?.hand || [];
     renderMyHand();
 
+    // Sincroniza a quantidade real de peças ocultas do adversário
     const oppRole = gameState.playerRole === 'p1' ? 'p2' : 'p1';
     const oppHandCount = data[oppRole]?.hand ? data[oppRole].hand.length : 0;
     document.getElementById('opponent-count').innerText = oppHandCount;
 
+    // Atualiza a linha central de dominós jogados
     renderChain(data.chain || []);
 }
 
-// Renderizador dos pontos em formato de Grid Profissional 3x3
+// ==========================================================================
+// RENDERIZADOR DE PONTOS COLORIDOS EM EMULAÇÃO GRID 3X3 PROFISSIONAL
+// ==========================================================================
 function createDominoElement(piece, isClickable = false) {
     const el = document.createElement('div');
     el.className = 'domino-piece';
@@ -197,6 +208,7 @@ function createDominoElement(piece, isClickable = false) {
         const half = document.createElement('div');
         half.className = 'domino-half';
         
+        // Posições geométricas exatas para as bolinhas não ficarem espalhadas ou bagunçadas
         const dotPositions = {
             0: [],
             1: [4],
@@ -220,6 +232,10 @@ function createDominoElement(piece, isClickable = false) {
             if (activeDots.includes(i)) {
                 const dot = document.createElement('div');
                 dot.className = 'dot';
+                
+                // Injeta a classe correspondente à cor configurada no seu arquivo style.css
+                dot.classList.add(`dot-val-${val}`); 
+                
                 cell.appendChild(dot);
             }
             half.appendChild(cell);
@@ -259,7 +275,7 @@ function renderChain(chain) {
     });
 }
 
-// Regras e Encaixes
+// Mecanismo de Validação de Pontas Abertas do Dominó do Brasil
 function handlePieceSelection(piece) {
     const roomRef = ref(db, 'rooms/' + gameState.roomCode);
     
@@ -278,6 +294,7 @@ function handlePieceSelection(piece) {
             const leftOuter = chain[0].left;
             const rightOuter = chain[chain.length - 1].right;
 
+            // Validação das extremidades direita e esquerda da mesa
             if (piece.left === rightOuter) {
                 updatedChain.push(piece);
                 matched = true;
@@ -298,6 +315,7 @@ function handlePieceSelection(piece) {
             const updatedHand = gameState.hand.filter(p => p.id !== piece.id);
             const nextTurn = gameState.playerRole === 'p1' ? 'p2' : 'p1';
 
+            // Verificação de Fim de Partida/Rodada (Bateu)
             if (updatedHand.length === 0) {
                 alert("Você bateu a rodada!");
                 const currentScore = (data[gameState.playerRole].score || 0) + 10; 
@@ -317,11 +335,12 @@ function handlePieceSelection(piece) {
             }
         } else {
             playDominoSound(150, 'sawtooth', 0.2);
-            alert("Esta peça não cabe nas pontas da mesa!");
+            alert("Esta peça não cabe nas pontas atuais da mesa!");
         }
     }, { onlyOnce: true });
 }
 
+// Manipulador de Fluxo de Telas
 function switchScreen(screenKey) {
     Object.keys(screens).forEach(key => {
         if(screens[key]) screens[key].classList.add('hidden');
