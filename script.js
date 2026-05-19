@@ -1,7 +1,9 @@
+// ==========================================================================
+// IMPORTAÇÃO E CONFIGURAÇÃO DO FIREBASE
+// ==========================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// Configuração oficial do Firebase (Mantida intacta)
 const firebaseConfig = {
     apiKey: "AIzaSyCZ4rOliexofYP8vyRLzUeX3mf5uXG6WRM",
     authDomain: "aposta-96213.firebaseapp.com",
@@ -16,7 +18,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Estado Local Seguro da Sessão
+// ==========================================================================
+// ESTADO LOCAL SEGURO DA SESSÃO
+// ==========================================================================
 let gameState = {
     roomCode: null,
     playerRole: null, // 'p1', 'p2', 'p3', 'p4'
@@ -26,7 +30,9 @@ let gameState = {
     activePlayersCount: 2
 };
 
-// Sintetizador de Áudio Nativo Profissional
+// ==========================================================================
+// SINTETIZADOR DE ÁUDIO NATIVO PROFISSIONAL
+// ==========================================================================
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playDominoSound(frequency = 300, type = 'sine', duration = 0.08) {
     try {
@@ -44,7 +50,9 @@ function playDominoSound(frequency = 300, type = 'sine', duration = 0.08) {
     } catch (e) { console.log("Áudio bloqueado pelo navegador."); }
 }
 
-// Mapeamento de Telas da Interface (Preservado)
+// ==========================================================================
+// MAPEAMENTO DE TELAS DA INTERFACE
+// ==========================================================================
 const screens = {
     loading: document.getElementById('loading-screen'),
     lobby: document.getElementById('lobby-screen'),
@@ -57,7 +65,6 @@ window.addEventListener('DOMContentLoaded', () => {
     setupButtonListeners();
 });
 
-// Inicialização segura dos eventos de clique para evitar chamadas duplas
 function setupButtonListeners() {
     document.getElementById('btn-create-room').onclick = () => handleRoomCreation();
     document.getElementById('btn-join-room').onclick = () => handleRoomJoin();
@@ -65,6 +72,121 @@ function setupButtonListeners() {
     document.getElementById('btn-draw').onclick = () => handleDrawPiece();
 }
 
+// ==========================================================================
+// FUNÇÕES DE ELEMENTOS GEOMÉTRICOS E RENDERIZAÇÃO DOM
+// ==========================================================================
+function createDominoElement(piece, isClickable = false, isTablePiece = false) {
+    const el = document.createElement('div');
+    el.className = 'domino-piece';
+
+    // SOMENTE AS PEÇAS DA MESA FICAM DEITADAS
+    if (isTablePiece) {
+        el.style.transform = 'rotate(90deg)';
+        el.style.width = '80px';
+        el.style.height = '40px';
+        el.style.flexDirection = 'row';
+    } 
+    // PEÇAS DA MÃO CONTINUAM EM PÉ
+    else {
+        el.style.width = '40px';
+        el.style.height = '80px';
+        el.style.flexDirection = 'column';
+    }
+
+    if (!piece.playable && isClickable) {
+        el.style.opacity = "0.4"; // Feedback visual sutil de peça travada
+    }
+
+    el.dataset.id = piece.id;
+
+    const renderHalf = (val) => {
+        const half = document.createElement('div');
+        half.className = 'domino-half';
+
+        // GRID DAS BOLINHAS
+        half.style.display = 'grid';
+        half.style.gridTemplateColumns = 'repeat(3, 1fr)';
+        half.style.gridTemplateRows = 'repeat(3, 1fr)';
+        half.style.width = '100%';
+        half.style.height = '100%';
+
+        const dotPositions = {
+            0: [],
+            1: [4],
+            2: [0, 8],
+            3: [0, 4, 8],
+            4: [0, 2, 6, 8],
+            5: [0, 2, 4, 6, 8],
+            6: [0, 2, 3, 5, 6, 8]
+        };
+
+        const activeDots = dotPositions[val] || [];
+
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.style.display = 'flex';
+            cell.style.justifyContent = 'center';
+            cell.style.alignItems = 'center';
+
+            if (activeDots.includes(i)) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.classList.add(`dot-val-${val}`);
+
+                // VISUAL PADRÃO DAS BOLINHAS (Caso não esteja totalmente no CSS)
+                dot.style.width = '8px';
+                dot.style.height = '8px';
+                dot.style.borderRadius = '50%';
+                dot.style.background = '#000';
+
+                cell.appendChild(dot);
+            }
+            half.appendChild(cell);
+        }
+        return half;
+    };
+
+    el.appendChild(renderHalf(piece.left));
+    el.appendChild(renderHalf(piece.right));
+
+    // CLIQUE NAS PEÇAS DA MÃO
+    if (isClickable && gameState.isMyTurn && piece.playable) {
+        el.onclick = () => handlePiecePlay(piece);
+        el.style.cursor = 'pointer';
+    }
+    return el;
+}
+
+function renderMyHand() {
+    const container = document.getElementById('my-hand');
+    container.innerHTML = '';
+    gameState.hand.forEach(piece => {
+        // FALSE = PEÇA DA MÃO (Fica em pé)
+        container.appendChild(createDominoElement(piece, true, false));
+    });
+}
+
+function renderChain(chain) {
+    const container = document.getElementById('domino-chain');
+    container.innerHTML = '';
+
+    if (chain.length === 0) {
+        container.innerHTML = `<p class="subtitle">A mesa está limpa. Inicie o jogo!</p>`;
+        return;
+    }
+
+    chain.forEach(piece => {
+        // TRUE = PEÇA DA MESA (Fica deitada)
+        const dominoNode = createDominoElement(piece, false, true);
+        dominoNode.classList.add('horizontal');
+        dominoNode.style.margin = '6px';
+        container.appendChild(dominoNode);
+    });
+}
+
+// ==========================================================================
+// GERENCIAMENTO DE SALAS (LOBBY & WAIT)
+// ==========================================================================
 function handleRoomCreation() {
     const name = document.getElementById('player-name').value.trim();
     if (!name) return alert('Por favor, digite seu nome primeiro!');
@@ -103,12 +225,12 @@ function handleRoomJoin() {
     
     runTransaction(roomRef, (currentData) => {
         if (!currentData) return currentData;
-        if (currentData.status === 'playing') return; // Sala cheia ou em andamento
+        if (currentData.status === 'playing') return; 
         
         const order = currentData.playersOrder || [];
         const nextIndex = order.length + 1;
         
-        if (nextIndex > 4) return; // Limite máximo de 4 jogadores atingido
+        if (nextIndex > 4) return; 
         
         const newRole = 'p' + nextIndex;
         gameState.playerRole = newRole;
@@ -117,7 +239,6 @@ function handleRoomJoin() {
         currentData.playersOrder = order;
         currentData[newRole] = { name: name, score: 0, hand: [] };
         
-        // O jogo pode iniciar com 2, 3 ou 4 jogadores. O P1 gerencia o início de dentro do painel de espera
         currentData.status = 'playing'; 
         
         return currentData;
@@ -146,7 +267,6 @@ function listenToRoomChanges() {
                 switchScreen('game');
                 document.getElementById('game-room-id').innerText = `#${gameState.roomCode}`;
                 
-                // Distribuição primária controlada atómicamente pelo Criador da Mesa (P1)
                 if (gameState.playerRole === 'p1' && (!data.chain && (!data.p1.hand || data.p1.hand.length === 0))) {
                     executeDistributionTransaction();
                     return;
@@ -162,7 +282,6 @@ function executeDistributionTransaction() {
     runTransaction(roomRef, (room) => {
         if (!room) return room;
         
-        // Geração completa das 28 peças oficiais [Duplo-6]
         let pool = [];
         for (let i = 0; i <= 6; i++) {
             for (let j = i; j <= 6; j++) {
@@ -170,14 +289,12 @@ function executeDistributionTransaction() {
             }
         }
         
-        // Embaralhar (Fisher-Yates profissional)
         for (let i = pool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [pool[i], pool[j]] = [pool[j], pool[i]];
         }
 
         const count = room.playersOrder.length;
-        // Regra de distribuição: 4 jogadores = 7 peças cada (deck zera). 2 jogadores = 7 peças cada (14 no deck).
         room.p1.hand = pool.slice(0, 7);
         room.p2.hand = pool.slice(7, 14);
         if (count >= 3) room.p3.hand = pool.slice(14, 21);
@@ -187,7 +304,6 @@ function executeDistributionTransaction() {
         room.chain = [];
         room.blockCount = 0;
 
-        // Regra Oficial de Saída Brasileira: Quem tem a bucha de 6 [6-6] inicia a partida
         let starter = 'p1';
         room.playersOrder.forEach(role => {
             if (room[role] && room[role].hand) {
@@ -202,25 +318,21 @@ function executeDistributionTransaction() {
 }
 
 // ==========================================================================
-// SISTEMA DE TURNOS, VALIDAÇÃO DE JOGADAS E FLUXO DA MESA
+// SISTEMA DE TURNOS E ATUALIZAÇÃO DA INTERFACE DA MESA
 // ==========================================================================
 function updateGameTable(data) {
-    // Sincronização dinâmica de nomes e placares dinâmicos baseado na quantidade de players conectados
     document.getElementById('score-p1-name').innerText = data.p1?.name || "...";
     document.getElementById('score-p2-name').innerText = data.p2?.name || "...";
     document.getElementById('score-p1-val').innerText = String(data.p1?.score || 0).padStart(2, '0');
     document.getElementById('score-p2-val').innerText = String(data.p2?.score || 0).padStart(2, '0');
 
-    // Validação de Turno Local estrita
     gameState.isMyTurn = (data.turn === gameState.playerRole);
     const activePlayerName = data[data.turn] ? data[data.turn].name : '...';
     document.getElementById('turn-indicator').innerText = gameState.isMyTurn ? "Sua Vez de Jogar!" : `Vez de: ${activePlayerName}`;
     document.getElementById('turn-indicator').style.color = gameState.isMyTurn ? "var(--gold-premium)" : "var(--text-muted)";
 
-    // Atualiza Mão do Cliente Local
     gameState.hand = data[gameState.playerRole]?.hand || [];
     
-    // Cálculo de Peças Disponíveis nas Extremidades da Mesa
     const chain = data.chain || [];
     let leftOuter = null;
     let rightOuter = null;
@@ -229,7 +341,6 @@ function updateGameTable(data) {
         rightOuter = chain[chain.length - 1].right;
     }
 
-    // Varre a mão do jogador para analisar se ele possui movimentos válidos reais
     let hasValidMove = false;
     gameState.hand.forEach(piece => {
         if (chain.length === 0 || piece.left === leftOuter || piece.right === leftOuter || piece.left === rightOuter || piece.right === rightOuter) {
@@ -242,12 +353,10 @@ function updateGameTable(data) {
 
     renderMyHand();
 
-    // Sincronização de Painéis de Interface (Oponentes)
     const oppRole = gameState.playerRole === 'p1' ? 'p2' : 'p1';
     const oppHandCount = data[oppRole]?.hand ? data[oppRole].hand.length : 0;
     document.getElementById('opponent-count').innerText = oppHandCount;
 
-    // Gerenciador de Exibição dos Botões de Ação para evitar travamento de jogo preso
     const btnDraw = document.getElementById('btn-draw');
     const btnPass = document.getElementById('btn-pass');
     
@@ -256,12 +365,10 @@ function updateGameTable(data) {
             btnDraw.classList.add('hidden');
             btnPass.classList.add('hidden');
         } else {
-            // Se não tem peça e o deck possui elementos, obriga a "Comprar"
             if (data.deck && data.deck.length > 0) {
                 btnDraw.classList.remove('hidden');
                 btnPass.classList.add('hidden');
             } else {
-                // Se o deck esgotou, libera o botão de "Passar Vez" instantaneamente
                 btnDraw.classList.add('hidden');
                 btnPass.classList.remove('hidden');
             }
@@ -274,69 +381,8 @@ function updateGameTable(data) {
     renderChain(chain);
 }
 
-// Renderizador Geométrico de Células Inalterado
-function createDominoElement(piece, isClickable = false) {
-    const el = document.createElement('div');
-    el.className = 'domino-piece';
-    if (!piece.playable && isClickable) el.style.opacity = "0.4"; // Feedback visual sutil de peça travada
-    el.dataset.id = piece.id;
-
-    const renderHalf = (val) => {
-        const half = document.createElement('div');
-        half.className = 'domino-half';
-        const dotPositions = {
-            0: [], 1: [4], 2: [0, 8], 3: [0, 4, 8],
-            4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8]
-        };
-        const activeDots = dotPositions[val] || [];
-        for (let i = 0; i < 9; i++) {
-            const cell = document.createElement('div');
-            cell.style.width = '100%'; cell.style.height = '100%';
-            cell.style.display = 'flex'; cell.style.justifyContent = 'center'; cell.style.alignItems = 'center';
-            if (activeDots.includes(i)) {
-                const dot = document.createElement('div');
-                dot.className = 'dot';
-                dot.classList.add(`dot-val-${val}`);
-                cell.appendChild(dot);
-            }
-            half.appendChild(cell);
-        }
-        return half;
-    };
-
-    el.appendChild(renderHalf(piece.left));
-    el.appendChild(renderHalf(piece.right));
-
-    if (isClickable && gameState.isMyTurn && piece.playable) {
-        el.onclick = () => handlePiecePlay(piece);
-    }
-    return el;
-}
-
-function renderMyHand() {
-    const container = document.getElementById('my-hand');
-    container.innerHTML = '';
-    gameState.hand.forEach(piece => {
-        container.appendChild(createDominoElement(piece, true));
-    });
-}
-
-function renderChain(chain) {
-    const container = document.getElementById('domino-chain');
-    container.innerHTML = '';
-    if (chain.length === 0) {
-        container.innerHTML = `<p class="subtitle">A mesa está limpa. Inicie o jogo!</p>`;
-        return;
-    }
-    chain.forEach(piece => {
-        const dominoNode = createDominoElement(piece, false);
-        dominoNode.classList.add('horizontal');
-        container.appendChild(dominoNode);
-    });
-}
-
 // ==========================================================================
-// TRANSAÇÕES ATÔMICAS DE JOGADAS (ANTI-DUPLICAÇÃO E ERRO DE CONCORRÊNCIA)
+// TRANSAÇÕES ATÔMICAS DE JOGADAS
 // ==========================================================================
 function handlePiecePlay(piece) {
     if (!gameState.isMyTurn) return;
@@ -372,13 +418,11 @@ function handlePiecePlay(piece) {
         }
 
         if (matched) {
-            // Remove peça da mão de forma atômica no servidor
             const serverHand = room[gameState.playerRole].hand || [];
             room[gameState.playerRole].hand = serverHand.filter(p => p.id !== piece.id);
             room.chain = newChain;
-            room.blockCount = 0; // Zera contagem de passes consecutivos
+            room.blockCount = 0;
 
-            // Regra de Vitória da Rodada (Bateu)
             if (room[gameState.playerRole].hand.length === 0) {
                 room[gameState.playerRole].score = (room[gameState.playerRole].score || 0) + 10;
                 alert("Você bateu a rodada! +10 Pontos.");
@@ -419,7 +463,6 @@ function handlePassTurn() {
 
         room.blockCount = (room.blockCount || 0) + 1;
         
-        // Se a contagem de passes consecutivos atingir o número de jogadores, o jogo fechou (Mastro)
         if (room.blockCount >= room.playersOrder.length) {
             return handleGameBlockEnding(room);
         }
@@ -456,7 +499,6 @@ function handleGameBlockEnding(room) {
 }
 
 function resetRoundData(room) {
-    // Nova distribuição limpa mantendo os placares acumulados estáveis
     let pool = [];
     for (let i = 0; i <= 6; i++) {
         for (let j = i; j <= 6; j++) {
