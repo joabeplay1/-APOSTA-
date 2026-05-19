@@ -101,27 +101,28 @@ function listenToRoomDatabaseUpdates() {
 
             myHand = room[myRole].hand || [];
             renderPlayerHandUI(myHand);
-            renderTableChainUI(room.chain || []);
-            evaluateControlsAndValidation(room);
-        }
-    });
-}
-
-// RENDERIZAÇÃO COMPLETA DAS PEDRAS CLÁSSICAS
-function renderPlayerHandUI(hand) {
-    const container = document.getElementById('my-hand');
+           function renderTableChainUI(chain) {
+    const container = document.getElementById('domino-chain');
     container.innerHTML = '';
-    
-    hand.forEach((piece, index) => {
-        const pElem = document.createElement('div');
-        pElem.className = 'domino-piece';
-        pElem.onclick = () => handleTablePlacementAttempt(piece, index);
 
+    if(chain.length === 0) {
+        leftEdge = null; rightEdge = null; return;
+    }
+
+    leftEdge = chain[0].sideA;
+    rightEdge = chain[chain.length - 1].sideB;
+
+    // Renderiza as peças deitadas na mesa seguindo o fluxo natural horizontal
+    chain.forEach(piece => {
+        const pElem = document.createElement('div');
+        pElem.className = 'domino-piece'; // Removida a classe .horizontal antiga que conflitava
         pElem.innerHTML = `
             <div class="domino-half">${generateDotsHTML(piece.sideA)}</div>
             <div class="domino-half">${generateDotsHTML(piece.sideB)}</div>
         `;
         container.appendChild(pElem);
+    });
+}
     });
 }
 
