@@ -1,9 +1,9 @@
 /* Variáveis de Design Moderno & Glassmorphism */
 :root {
     --bg-dark: #040508;
-    /* Feltro reestilizado: Injeção de iluminação periférica interna e profundidade */
-    --felt-green: radial-gradient(circle at center, #164e33 0%, #0d2f1e 50%, #05140d 100%);
-    --gold-premium: #d4af37;
+    /* Feltro reestilizado com efeito verde transparente moderno sobre o fundo */
+    --felt-green: rgba(12, 48, 30, 0.65);
+    --gold-premium: #ffd700; /* Amarelo dourado moderno e vivo */
     --gold-hover: #f3e5ab;
     --blue-neon: #00d2ff;
     --purple-neon: #bd00ff;
@@ -36,8 +36,8 @@ body {
         radial-gradient(circle at 15% 20%, rgba(0, 210, 255, 0.08) 0%, transparent 40%),
         radial-gradient(circle at 85% 80%, rgba(189, 0, 255, 0.08) 0%, transparent 45%),
         radial-gradient(circle at center, #120b24 0%, #040509 100%) !important;
-    color: var(--text-main);
-    overflow: hidden;
+    color: #ffffff;
+    overflow: hidden; /* Elimina de vez a barra branca e qualquer rolagem na tela */
     height: 100vh;
     width: 100vw;
     position: relative;
@@ -51,8 +51,8 @@ body {
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
     position: absolute;
     top: 0;
     left: 0;
@@ -96,11 +96,11 @@ body {
 
 .logo span {
     color: var(--gold-premium);
-    text-shadow: 0 0 18px rgba(212, 175, 55, 0.5);
+    text-shadow: 0 0 18px rgba(255, 215, 0, 0.5);
 }
 
 .subtitle {
-    color: var(--text-muted);
+    color: #8a9a92;
     font-size: 0.9rem;
     margin-bottom: 2.5rem;
 }
@@ -134,7 +134,7 @@ input[type="text"] {
 input[type="text"]:focus {
     outline: none;
     border-color: var(--gold-premium);
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.25);
 }
 
 /* Botões */
@@ -152,12 +152,12 @@ button {
     padding: 1rem;
     border-radius: 12px;
     font-size: 1rem;
-    box-shadow: 0 4px 18px rgba(212, 175, 55, 0.35);
+    box-shadow: 0 4px 18px rgba(255, 215, 0, 0.35);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.55);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.55);
 }
 
 .btn-secondary {
@@ -205,7 +205,7 @@ button {
     letter-spacing: 5px;
     margin: 1.5rem 0;
     color: var(--gold-premium);
-    text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
 }
 
 .btn-small {
@@ -257,7 +257,6 @@ button {
     gap: 1rem;
 }
 
-/* Tipografia de textos institucionais e metadados */
 .player-name-tag {
     font-weight: 700;
     font-size: 0.95rem;
@@ -267,7 +266,6 @@ button {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-/* Marcador numérico com efeito Neon Dourado */
 .score-digit {
     font-size: 1.9rem;
     font-weight: 900;
@@ -275,8 +273,8 @@ button {
     background: rgba(0, 0, 0, 0.7) !important;
     padding: 0.15rem 0.9rem;
     border-radius: 8px;
-    border: 1px solid rgba(212, 175, 55, 0.4) !important;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid rgba(255, 215, 0, 0.4) !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.8) !important;
     font-family: 'Courier New', Courier, monospace;
 }
 
@@ -284,7 +282,6 @@ button {
     text-align: center;
 }
 
-/* Tipografia de Turnos Avançada */
 #turn-indicator {
     font-weight: 800;
     font-size: 1.15rem;
@@ -301,53 +298,93 @@ button {
     font-weight: 600;
     letter-spacing: 0.5px;
     color: var(--gold-premium);
-    text-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
 }
 
 /* ==========================================================================
-   RESTAURAÇÃO DA MESA GRANDE ORIGINAL (REATIVIDADE DE ESPAÇO MÁXIMO CORRIGIDA)
+   RESTAURAÇÃO DA MESA ESTILO SINUCA (HORIZONTAL, LARGA E CENTRALIZADA)
    ========================================================================== */
 .domino-table {
-    flex: 1;
-    width: 100%;
-    /* Ocupa todo o espaço vertical original disponível entre o topo e a mão do jogador */
-    height: calc(100vh - 220px) !important; 
-    padding: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    height: calc(100vh - 235px) !important; /* Controla perfeitamente o espaço dinâmico central */
+    padding: 15px;
     position: relative;
+    box-sizing: border-box;
 }
 
 .table-felt {
-    width: 98% !important;   /* Expande horizontalmente ao limite original máximo */
-    height: 98% !important;  /* Expande verticalmente ao limite original máximo */
+    width: 78vw !important;         /* Larga igual mesa de sinuca/bilhar profissional */
+    height: 100% !important;
+    max-width: 1150px;
+    max-height: 450px;             /* Limita a altura para se manter horizontal elegante */
     background: var(--felt-green) !important;
-    border-radius: 20px;
-    border: 10px solid #1a0f07 !important;
+    backdrop-filter: blur(15px);   /* Efeito moderno transparente */
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 24px;
+    border: 3px solid rgba(0, 255, 136, 0.28) !important; /* Borda brilhante sutil */
+    
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: auto;
+    overflow: hidden;
     position: relative;
+    box-sizing: border-box;
     
-    /* Duplo Neon Aura Original */
+    /* Brilho periférico interno e sombra projetada imponente */
     box-shadow: 
-        inset 0 0 100px rgba(0, 0, 0, 0.95),
-        0 0 45px rgba(34, 197, 94, 0.15),
-        0 0 90px rgba(0, 210, 255, 0.1) !important;
+        0 20px 50px rgba(0, 0, 0, 0.7),
+        inset 0 0 40px rgba(0, 255, 136, 0.12) !important;
+}
+
+/* Container do letreiro para centralização limpa absoluta */
+.jesus-reina-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    width: 100%;
+    z-index: 1; /* Fica no fundo, por baixo do fluxo de pedras */
+}
+
+/* Estilo do Letreiro Amarelo Dourado Moderno */
+.jesus-reina-felt {
+    font-size: 4.2rem !important;
+    font-family: 'Arial Black', -apple-system, sans-serif;
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: var(--gold-premium) !important;
+    /* Reflexos luminosos dourados e sombra preta projetada de alta definição */
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.5), 3px 3px 6px rgba(0, 0, 0, 0.85) !important;
+    text-transform: uppercase;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.mesa-subtexto {
+    color: #e0e0e0;
+    margin: 6px 0 0 0;
+    font-size: 0.95rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    opacity: 0.85;
 }
 
 /* --- TRAVA MECÂNICA: HORIZONTALIDADE DAS PECINHAS JOGADAS NA MESA --- */
 .chain-container {
     display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important; /* Alinha o centro de todas as peças em uma linha reta perfeita */
+    flex-direction: row !important; /* Fluxo das peças corre lado a lado horizontalmente */
+    align-items: center !important; 
     justify-content: center !important;
     gap: 8px !important;
-    padding: 60px;
-    min-width: max-content;
-    z-index: 10;
+    width: 92%;
+    height: 85%;
+    position: relative;
+    z-index: 5; /* Força os dominós a ficarem por cima do texto dourado */
 }
 
 /* Corrige o alinhamento das pedras deitadas (horizontais) no feltro */
@@ -405,7 +442,7 @@ button {
     border-color: var(--gold-premium) !important;
     box-shadow: 
         0 22px 40px rgba(0, 0, 0, 0.75), 
-        0 0 20px rgba(212, 175, 55, 0.45), 
+        0 0 20px rgba(255, 215, 0, 0.45), 
         inset 0 2px 3px rgba(255, 255, 255, 0.9) !important;
 }
 
@@ -505,7 +542,7 @@ button {
 }
 
 .opponent-hand-status {
-    color: var(--text-muted);
+    color: #8a9a92;
     font-size: 0.9rem;
     font-weight: 500;
 }
@@ -526,13 +563,13 @@ button {
     border-radius: 8px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
 }
 
 .btn-action:hover {
     background: var(--gold-premium);
     color: #000;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
 .spinner {
@@ -562,10 +599,6 @@ button {
     }
 }
 
-/* ==========================================================================
-   ESTILIZAÇÃO DOS LETREIROS "JESUS REINA" (SEM MEGER NO VISUAL BASE)
-   ========================================================================== */
-
 /* Letreiro na Tela de Códigos (Waiting Card) */
 .jesus-reina-banner {
     position: absolute;
@@ -576,28 +609,12 @@ button {
     font-weight: 900;
     letter-spacing: 3px;
     color: var(--gold-premium);
-    text-shadow: 0 0 15px rgba(212, 175, 55, 0.6), 0 0 30px rgba(212, 175, 55, 0.3);
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.3);
     text-transform: uppercase;
-}
-
-/* Marca d'água fixa centralizada por baixo das pecinhas no Feltro Verde */
-.jesus-reina-felt {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    font-weight: 900;
-    letter-spacing: 6px;
-    color: rgba(212, 175, 55, 0.15) !important; /* Opacidade suave ideal para marca d'água de luxo */
-    text-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
-    text-transform: uppercase;
-    pointer-events: none;
-    z-index: 1;
 }
 
 /* ==========================================================================
-   RESPONSIVIDADE MOBILE — ADAPTADO PARA AS NOVAS PEDRAS MAIORES
+   RESPONSIVIDADE MOBILE — COMPATÍVEL COM LAYOUT DEITADO
    ========================================================================== */
 @media (max-width: 768px) {
     :root {
@@ -610,6 +627,16 @@ button {
     .game-header { padding: 0 1rem; height: 65px; }
     .score-digit { font-size: 1.4rem; }
     
+    .domino-table {
+        height: calc(100vh - 200px) !important;
+        padding: 5px;
+    }
+
+    .table-felt {
+        width: 94vw !important;
+        max-height: 320px;
+    }
+
     .domino-piece { 
         padding: 4px !important; 
     }
@@ -630,7 +657,7 @@ button {
     }
 
     .jesus-reina-felt {
-        font-size: 2.2rem;
+        font-size: 2.5rem !important;
         letter-spacing: 3px;
     }
     
