@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domino Aposta — Suíte Premium</title>
+    <title>Suíte Premium — Sistema Base</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,28 +12,28 @@
 
     <div id="loading-screen" class="overlay">
         <div class="loader-content">
-            <h2>DOMINO APOSTA</h2>
-            <p>Carregando ambiente premium...</p>
+            <h2>SUITE PREMIUM</h2>
+            <p>Carregando ambiente...</p>
             <div class="spinner"></div>
         </div>
     </div>
 
     <div id="lobby-screen" class="screen">
         <div class="glass-card">
-          <h1 class="logo">JESUS REINA</h1>
-            
+            <h1 class="logo">PLATAFORMA <span>PREMIUM</span></h1>
+            <p class="subtitle">Ambiente operacional moderno de alta performance</p>
             
             <div class="input-group">
-                <label for="player-name">Seu Nome / Apelido</label>
+                <label for="player-name">Seu Nome / Usuário</label>
                 <input type="text" id="player-name" placeholder="Ex: Joabe Play" maxlength="15">
             </div>
 
             <div class="actions">
-                <button id="btn-create-room" class="btn-primary">Criar Mesa Premium</button>
+                <button id="btn-create-room" class="btn-primary">Criar Nova Sessão</button>
                 <div class="divider"><span>ou</span></div>
                 <div class="search-group">
-                    <input type="text" id="room-code-input" placeholder="Código da Mesa" maxlength="6">
-                    <button id="btn-join-room" class="btn-secondary">Entrar</button>
+                    <input type="text" id="room-code-input" placeholder="Código de Acesso" maxlength="6">
+                    <button id="btn-join-room" class="btn-secondary">Acessar</button>
                 </div>
             </div>
         </div>
@@ -43,60 +43,15 @@
         <div class="glass-card waiting-card" style="position: relative; padding-top: 5rem;">
             <div class="jesus-reina-banner">JESUS REINA</div>
             
-            <h2>Mesa Criada com Sucesso!</h2>
-            <p>Compartilhe o código abaixo com o seu adversário:</p>
+            <h2>Sessão Criada com Sucesso!</h2>
+            <p>Compartilhe o código de pareamento com o outro usuário:</p>
             <div class="code-display" id="generated-code">------</div>
             <button id="btn-copy-code" class="btn-small">Copiar Código</button>
             <div class="status-container">
                 <div class="pulse-ring"></div>
-                <p id="waiting-status">Aguardando jogador adversário...</p>
+                <p id="waiting-status">Aguardando conexão...</p>
             </div>
         </div>
-    </div>
-
-    <div id="game-screen" class="screen hidden">
-        <header class="game-header">
-            <div class="player-score status-left">
-                <span class="player-name-tag" id="score-p1-name">Jogador 1</span>
-                <span class="score-digit" id="score-p1-val">00</span>
-            </div>
-            
-            <div class="match-info">
-                <div id="turn-indicator">Carregando turno...</div>
-                <div id="pool-info">Mesa: <span id="game-room-id">#000000</span></div>
-            </div>
-
-            <div class="player-score status-right">
-                <span class="score-digit" id="score-p2-val">00</span>
-                <span class="player-name-tag" id="score-p2-name">Jogador 2</span>
-            </div>
-        </header>
-
-        <main class="domino-table">
-            <div class="table-felt">
-                
-                <div class="jesus-reina-container">
-                    <h1 class="jesus-reina-felt">JESUS REINA</h1>
-                    
-                </div>
-                
-                <div id="domino-chain" class="chain-container"></div>
-                
-            </div>
-        </main>
-
-        <footer class="player-panel">
-            <div class="opponent-hand-status">
-                <p>Adversário possui: <span id="opponent-count">7</span> peças</p>
-            </div>
-            
-            <div class="player-controls">
-                <button id="btn-draw" class="btn-action hidden">Comprar Peça</button>
-                <button id="btn-pass" class="btn-action hidden">Passar Vez</button>
-            </div>
-
-            <div id="my-hand" class="hand-container"></div>
-        </footer>
     </div>
 
     <script type="module" src="script.js"></script>
@@ -105,17 +60,17 @@
 
     <div id="lobby-presence-sidebar" class="lobby-sidebar hidden">
         <div class="sidebar-header">
-            <h3>Jogadores Online</h3>
+            <h3>Usuários Online</h3>
             
             <div class="sidebar-name-input-group">
-                <label for="sidebar-player-name">Escreva seu nome aqui para ficar visível:</label>
+                <label for="sidebar-player-name">Seu nome de exibição:</label>
                 <input type="text" id="sidebar-player-name" placeholder="Seu apelido..." maxlength="15">
             </div>
 
             <div class="my-status-control">
                 <select id="select-my-status">
                     <option value="Disponível">🟢 Disponível</option>
-                    <option value="Jogando">🔴 Jogando</option>
+                    <option value="Jogando">🔴 Ocupado</option>
                     <option value="Ausente">🟡 Ausente</option>
                 </select>
             </div>
@@ -130,7 +85,7 @@
                 <span id="chat-target-name">Conversa Privada</span>
                 <div class="chat-controls-btns">
                     <button id="btn-minimize-chat" class="chat-ctrl-btn" title="Minimizar">—</button>
-                    <button id="btn-close-chat" class="chat-ctrl-btn" title="Fechar Conversa">&times;</button>
+                    <button id="btn-close-chat" class="chat-ctrl-btn" title="Fechar">&times;</button>
                 </div>
             </div>
             <div id="chat-messages-box" class="messages-container">
