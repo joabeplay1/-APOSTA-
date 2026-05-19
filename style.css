@@ -1,10 +1,10 @@
 /* Variáveis de Design Moderno & Glassmorphism */
 :root {
     --bg-dark: #040508;
-    --felt-green: radial-gradient(circle at center, #164e33 0%, #0d2f1e 50%, #05140d 100%);
     --gold-premium: #d4af37;
     --gold-hover: #f3e5ab;
     --glass-premium-bg: rgba(10, 15, 13, 0.75);
+    --glass-premium-border: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%);
     --shadow-real: 0 25px 55px rgba(0,0,0,0.85), 0 8px 16px rgba(0,0,0,0.5);
     --text-main: #f0f4f2;
     --text-muted: #8a9a92;
@@ -152,7 +152,7 @@ button { cursor: pointer; border: none; transition: all 0.2s ease; }
 }
 
 /* ==========================================================================
-   DESIGN DA MESA HORIZONTAL ESTILO SINUCA
+   DESIGN DA ÁREA DE JOGO FLUTUANTE (SEM FELTRO OU MESA DE MADEIRA)
    ========================================================================== */
 .domino-table {
     flex: 1;
@@ -162,23 +162,11 @@ button { cursor: pointer; border: none; transition: all 0.2s ease; }
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.table-felt {
-    width: 96% !important;   /* Proporção horizontal esticada de sinuca */
-    height: 90% !important;  /* Achata levemente para criar o visual deitado */
-    background: var(--felt-green) !important;
-    border-radius: 20px;
-    border: 12px solid #1a0f07 !important; /* Borda robusta de madeira */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: auto;
     position: relative;
-    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.95), 0 0 45px rgba(34, 197, 94, 0.2);
+    overflow: auto;
 }
 
-/* Alinhamento da corrente horizontal de peças deitadas */
+/* Alinhamento da corrente horizontal de peças deitadas flutuando */
 .chain-container {
     display: flex !important;
     flex-direction: row !important;
@@ -194,7 +182,7 @@ button { cursor: pointer; border: none; transition: all 0.2s ease; }
    ANATOMIA DAS PEÇAS (MESA = DEITADA | MÃO = EM PÉ)
    ========================================================================== */
 
-/* Estilo Base Clássico de Osso */
+/* Estilo Base Clássico de Osso Nítido */
 .domino-piece {
     background: linear-gradient(135deg, #ffffff 0%, #f6f6f6 100%) !important;
     border: 2px solid #d1d5db !important;
@@ -202,11 +190,11 @@ button { cursor: pointer; border: none; transition: all 0.2s ease; }
     position: relative !important;
     display: flex !important;
     border-radius: 8px !important;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6) !important; /* Sombra destacada para flutuar */
     cursor: pointer !important;
 }
 
-/* --- AS PEÇAS DENTRO DA MESA (DEITADAS AUTOMATICAMENTE) --- */
+/* --- AS PEÇAS DENTRO DA MESA FLUTUANTE (DEITADAS AUTOMATICAMENTE) --- */
 .chain-container .domino-piece, 
 #domino-chain .domino-piece {
     width: var(--domino-w-table) !important;
@@ -293,7 +281,7 @@ button { cursor: pointer; border: none; transition: all 0.2s ease; }
     z-index: 6 !important;
 }
 
-/* Bolinhas Pretas (Comum para todas) */
+/* Bolinhas Pretas Nítidas (Comum para todas) */
 .dot {
     width: 9px !important;
     height: 9px !important;
@@ -319,12 +307,26 @@ button { cursor: pointer; border: none; transition: all 0.2s ease; }
 
 /* LETREIROS "JESUS REINA" */
 .jesus-reina-banner { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 1.8rem; font-weight: 900; color: var(--gold-premium); text-shadow: 0 0 15px rgba(212, 175, 55, 0.6); text-transform: uppercase; }
-.jesus-reina-felt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4rem; font-weight: 900; color: rgba(212, 175, 55, 0.12) !important; text-shadow: 0 0 25px rgba(212, 175, 55, 0.2); text-transform: uppercase; pointer-events: none; z-index: 1; }
+
+/* Letreiro Centralizado Flutuando diretamente por trás do tabuleiro no fundo do App */
+.jesus-reina-felt { 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    font-size: 5rem; 
+    font-weight: 900; 
+    color: rgba(212, 175, 55, 0.08) !important; 
+    text-shadow: 0 0 25px rgba(212, 175, 55, 0.25); 
+    text-transform: uppercase; 
+    pointer-events: none; 
+    z-index: 1; 
+}
 
 .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--gold-premium); border-radius: 50%; animation: spin 1s linear infinite; margin: 1.5rem auto 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Ajustes Mobile */
+/* Ajustes Mobile Reativos */
 @media (max-width: 768px) {
     :root { 
         --domino-w-table: 76px; 
@@ -333,7 +335,6 @@ button { cursor: pointer; border: none; transition: all 0.2s ease; }
         --domino-h-hand: 92px; 
     }
     .domino-table { height: calc(100vh - 180px) !important; padding: 5px; }
-    .table-felt { width: 99% !important; height: 95% !important; border: 6px solid #1a0f07 !important; }
     .dot { width: 6px !important; height: 6px !important; }
-    .jesus-reina-felt { font-size: 2.2rem; }
+    .jesus-reina-felt { font-size: 2.5rem; }
 }
