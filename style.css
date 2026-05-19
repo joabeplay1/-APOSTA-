@@ -305,14 +305,14 @@ button {
 }
 
 /* ==========================================================================
-   RESTAURAÇÃO DA MESA GRANDE ORIGINAL (REATIVIDADE DE ESPAÇO MÁXIMO)
+   RESTAURAÇÃO DA MESA GRANDE ORIGINAL (REATIVIDADE DE ESPAÇO MÁXIMO CORRIGIDA)
    ========================================================================== */
 .domino-table {
     flex: 1;
     width: 100%;
-    height: calc(100vh - 220px) !important; /* Estica verticalmente ocupando o espaço original max */
-    background: transparent !important;
-    padding: 12px;
+    /* Ocupa todo o espaço vertical original disponível entre o topo e a mão do jogador */
+    height: calc(100vh - 220px) !important; 
+    padding: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -320,8 +320,8 @@ button {
 }
 
 .table-felt {
-    width: 98% !important;   /* Expande horizontalmente ao limite original */
-    height: 98% !important;  /* Expande verticalmente ao limite original */
+    width: 98% !important;   /* Expande horizontalmente ao limite original máximo */
+    height: 98% !important;  /* Expande verticalmente ao limite original máximo */
     background: var(--felt-green) !important;
     border-radius: 20px;
     border: 10px solid #1a0f07 !important;
@@ -338,24 +338,25 @@ button {
         0 0 90px rgba(0, 210, 255, 0.1) !important;
 }
 
-/* --- ADICIONADO: ALINHAMENTO GEOMÉTRICO DAS PEDRINHAS SOBRE A MESA --- */
+/* --- TRAVA MECÂNICA: HORIZONTALIDADE DAS PECINHAS JOGADAS NA MESA --- */
 .chain-container {
     display: flex !important;
     flex-direction: row !important;
-    align-items: center !important; /* Trava o eixo horizontal central para alinhar todas as peças */
+    align-items: center !important; /* Alinha o centro de todas as peças em uma linha reta perfeita */
     justify-content: center !important;
-    gap: 12px !important;
+    gap: 8px !important;
     padding: 60px;
     min-width: max-content;
     z-index: 10;
 }
 
-/* Garante o alinhamento das pedras deitadas/horizontais na mesa */
+/* Corrige o alinhamento das pedras deitadas (horizontais) no feltro */
 .domino-piece.horizontal {
     width: var(--domino-h-table) !important;
     height: var(--domino-w-table) !important;
     flex-direction: row !important;
     align-self: center !important;
+    transform: none !important;
 }
 
 .domino-piece.horizontal::after {
@@ -487,7 +488,7 @@ button {
     height: 8px !important;
 }
 
-/* Painel de Controle Inferior */
+/* Painel de Controle Inferior (Peças de Baixo da Mesa) */
 .player-panel {
     width: 100%;
     background: rgba(4, 5, 8, 0.6) !important;
@@ -562,7 +563,7 @@ button {
 }
 
 /* ==========================================================================
-   ADICIONADO: ESTILIZAÇÃO COMPLETA PARA OS LETREIROS "JESUS REINA"
+   ESTILIZAÇÃO DOS LETREIROS "JESUS REINA" (SEM MEGER NO VISUAL BASE)
    ========================================================================== */
 
 /* Letreiro na Tela de Códigos (Waiting Card) */
@@ -579,7 +580,7 @@ button {
     text-transform: uppercase;
 }
 
-/* Marca d'água no centro do Feltro Verde do Tabuleiro */
+/* Marca d'água fixa centralizada por baixo das pecinhas no Feltro Verde */
 .jesus-reina-felt {
     position: absolute;
     top: 50%;
@@ -588,7 +589,7 @@ button {
     font-size: 4rem;
     font-weight: 900;
     letter-spacing: 6px;
-    color: rgba(212, 175, 55, 0.15) !important; /* Opacidade sutil para não cobrir as pedras jogadas */
+    color: rgba(212, 175, 55, 0.15) !important; /* Opacidade suave ideal para marca d'água de luxo */
     text-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
     text-transform: uppercase;
     pointer-events: none;
