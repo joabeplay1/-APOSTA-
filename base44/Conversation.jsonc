@@ -1,0 +1,39 @@
+{
+  "name": "Conversation",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "mood": {
+      "type": "string",
+      "enum": [
+        "happy",
+        "sad",
+        "angry",
+        "neutral"
+      ],
+      "default": "neutral"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}
