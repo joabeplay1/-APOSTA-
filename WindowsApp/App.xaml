@@ -1,0 +1,8 @@
+<Application x:Class="WindowsApp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2000/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2000/xaml"
+             StartupUri="Views/MainWindow.xaml">
+    <Application.Resources>
+         <!-- Estilos globais podem ser adicionados aqui -->
+    </Application.Resources>
+</Application>
